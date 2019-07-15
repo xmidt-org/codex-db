@@ -12,4 +12,5 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/xmidt-org/capacityset v0.1.1
 	github.com/xmidt-org/webpa-common v1.2.0
+	github.com/xmidt-org/wrp-go v1.0.1-0.20190715181820-57975ce5898b
 )
