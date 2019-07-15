@@ -17,7 +17,7 @@ install:
   - GO111MODULE=on go mod vendor
 
 branches:
-    only:
+  only:
     - master
 
 script:

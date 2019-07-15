@@ -27,12 +27,12 @@ import (
 
 	"github.com/xmidt-org/capacityset"
 
-	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/webpa-common/semaphore"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
 	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/webpa-common/logging"
+	"github.com/xmidt-org/webpa-common/semaphore"
 )
 
 const (

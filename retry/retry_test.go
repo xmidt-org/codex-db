@@ -22,12 +22,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/codex-db/blacklist"
 
-	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 )
 
 func TestRetryInsertRecords(t *testing.T) {

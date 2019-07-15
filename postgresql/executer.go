@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/codex-db/blacklist"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"

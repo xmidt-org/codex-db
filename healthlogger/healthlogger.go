@@ -20,9 +20,9 @@ package healthlogger
 import (
 	"fmt"
 
-	"github.com/xmidt-org/webpa-common/logging"
 	hlog "github.com/InVisionApp/go-logger"
 	"github.com/go-kit/kit/log"
+	"github.com/xmidt-org/webpa-common/logging"
 )
 
 type HealthLogger struct {

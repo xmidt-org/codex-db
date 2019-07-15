@@ -18,8 +18,8 @@
 package batchInserter
 
 import (
-	"github.com/xmidt-org/codex-db"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/codex-db"
 )
 
 type mockInserter struct {

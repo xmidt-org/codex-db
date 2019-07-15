@@ -23,11 +23,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/wrp"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 var (

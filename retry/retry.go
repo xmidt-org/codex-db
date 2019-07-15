@@ -24,8 +24,8 @@ package dbretry
 import (
 	"time"
 
-	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/codex-db/blacklist"
 
 	"github.com/go-kit/kit/metrics/provider"
 )
