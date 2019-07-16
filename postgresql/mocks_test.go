@@ -20,8 +20,8 @@ package postgresql
 import (
 	"encoding/json"
 
-	"github.com/xmidt-org/codex-db"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/codex-db"
 )
 
 type mockFinder struct {

@@ -10,6 +10,7 @@ require (
 	github.com/goph/emperror v0.17.2
 	github.com/jinzhu/gorm v1.9.10
 	github.com/stretchr/testify v1.3.0
-	github.com/xmidt-org/capacityset v0.0.0-20190711222112-6309a9261a9f
-	github.com/xmidt-org/webpa-common v1.1.0
+	github.com/xmidt-org/capacityset v0.1.1
+	github.com/xmidt-org/webpa-common v1.3.0
+	github.com/xmidt-org/wrp-go v1.2.0
 )

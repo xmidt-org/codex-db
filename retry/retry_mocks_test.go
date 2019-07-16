@@ -18,9 +18,9 @@
 package dbretry
 
 import (
-	"github.com/xmidt-org/codex-db/blacklist"
-	"github.com/xmidt-org/codex-db"
 	"github.com/stretchr/testify/mock"
+	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/codex-db/blacklist"
 )
 
 type mockInserter struct {

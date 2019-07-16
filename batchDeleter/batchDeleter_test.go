@@ -32,8 +32,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 	"github.com/xmidt-org/codex-db"
+	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 )
 
 func TestNewBatchDeleter(t *testing.T) {
