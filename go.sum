@@ -204,8 +204,10 @@ github.com/xmidt-org/capacityset v0.1.1 h1:qlPBU15RMOeDr2mzZ5nwjWQsdZ867VHKIEeRF
 github.com/xmidt-org/capacityset v0.1.1/go.mod h1:rJ00PZmbkdroZMiL0DOMzgkrwJddVfR1I5LmRX6YG2Y=
 github.com/xmidt-org/webpa-common v1.2.0 h1:ewB82rL5vpiY1hgt2PhG4oKGad67tH4sdIZL9zwSdus=
 github.com/xmidt-org/webpa-common v1.2.0/go.mod h1:oCpKzOC+9h2vYHVzAU/06tDTQuBN4RZz+rhgIXptpOI=
-github.com/xmidt-org/wrp-go v1.0.1-0.20190715181820-57975ce5898b h1:+eXbJ6DHM0BDZy93pmuQmwGKygUVsYTaMhKrSzZqqi4=
-github.com/xmidt-org/wrp-go v1.0.1-0.20190715181820-57975ce5898b/go.mod h1:Kw0jjKWw5e94bh5r45HYKGC1wN8IrfeZlXy298PT/2s=
+github.com/xmidt-org/webpa-common v1.3.0 h1:AembEPW16kQpUWqZ8Kn1uxjdWDuCzccqFGNWoPExK14=
+github.com/xmidt-org/webpa-common v1.3.0/go.mod h1:oCpKzOC+9h2vYHVzAU/06tDTQuBN4RZz+rhgIXptpOI=
+github.com/xmidt-org/wrp-go v1.2.0 h1:jkn+7GcFhP8MPHJiAhI2EKI95u03wybF+MP2VdmUogU=
+github.com/xmidt-org/wrp-go v1.2.0/go.mod h1:Kw0jjKWw5e94bh5r45HYKGC1wN8IrfeZlXy298PT/2s=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
