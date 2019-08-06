@@ -105,7 +105,7 @@ func (b *dbDecorator) findBlacklist() ([]blacklist.BlackListedItem, error) {
 	var device string
 	var reason string
 
-	iter := b.session.Query("SELECT device_id, reason FROM devices.blacklist;", ).Iter()
+	iter := b.session.Query("SELECT device_id, reason FROM devices.blacklist;").Iter()
 
 	for iter.Scan(&device, &reason) {
 		records = append(records, blacklist.BlackListedItem{
