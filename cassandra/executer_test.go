@@ -17,150 +17,163 @@
 
 package cassandra
 
-//import (
-//	"fmt"
-//	"github.com/stretchr/testify/assert"
-//	"github.com/stretchr/testify/require"
-//	db "github.com/xmidt-org/codex-db"
-//	"github.com/yugabyte/gocql"
-//	"log"
-//	"testing"
-//	"time"
-//)
-//
-//var createStmt = `CREATE TABLE devices.events (device_id  varchar,
-//                                                          type int,
-//                                                          birthdate bigint,
-//                                                          deathdate bigint,
-//                                                          data blob,
-//                                                          nonce blob,
-//                                                          alg varchar,
-//                                                          kid varchar,
-//                                                          PRIMARY KEY ((device_id,  type), birthdate)
-//                                                  ) WITH CLUSTERING ORDER BY (birthdate DESC) AND transactions = { 'enabled' : true } AND default_time_to_live = 0;`
-//
-//func TestBasicCommands(t *testing.T) {
-//	assert := assert.New(t)
-//	require := require.New(t)
-//
-//	d, err := connect(gocql.NewCluster("127.0.0.1"))
-//	defer d.close()
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	// Set up the keyspace and table.
-//	if err := d.session.Query("CREATE KEYSPACE IF NOT EXISTS devices").Exec(); err != nil {
-//	}
-//	fmt.Println("Created keyspace devices")
-//
-//	if err := d.session.Query(`DROP TABLE IF EXISTS devices.events`).Exec(); err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	if err := d.session.Query(createStmt).Exec(); err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	goodRecord := db.Record{
-//		DeviceID:  "neat",
-//		Type:      db.Default,
-//		BirthDate: time.Now().UnixNano() + time.Minute.Nanoseconds(),
-//		DeathDate: time.Now().Add(time.Second * 30).UnixNano() + time.Minute.Nanoseconds(),
-//		Data:      []byte("hello"),
-//		Nonce:     []byte("hello"),
-//		KID:       "3",
-//		Alg:       "3",
-//	}
-//
-//	_, err = d.insert([]db.Record{
-//		goodRecord,
-//	})
-//	assert.NoError(err)
-//
-//	records, err := d.findRecords(100, "WHERE device_id=?", "neat")
-//	require.Len(records, 1)
-//	assert.Equal(goodRecord, records[0])
-//}
-//
-//func TestMultiRecord(t *testing.T) {
-//	assert := assert.New(t)
-//	require := require.New(t)
-//
-//	d, err := connect(gocql.NewCluster("127.0.0.1"))
-//	defer d.close()
-//	require.NoError(err)
-//	// Set up the keyspace and table.
-//	if err := d.session.Query("CREATE KEYSPACE IF NOT EXISTS devices").Exec(); err != nil {
-//		require.NoError(err)
-//	}
-//	fmt.Println("Created keyspace devices")
-//
-//	if err := d.session.Query(`DROP TABLE IF EXISTS devices.events`).Exec(); err != nil {
-//		require.NoError(err)
-//	}
-//
-//	if err := d.session.Query(createStmt).Exec(); err != nil {
-//		require.NoError(err)
-//	}
-//
-//	recordA := db.Record{
-//		DeviceID:  "neat",
-//		Type:      db.State,
-//		BirthDate: time.Now().UnixNano() + time.Minute.Nanoseconds(),
-//		DeathDate: time.Now().Add(time.Second * 30).UnixNano() + time.Minute.Nanoseconds(),
-//		Data:      []byte("hello"),
-//		Nonce:     []byte("hello"),
-//		KID:       "A",
-//		Alg:       "A",
-//	}
-//	recordB := db.Record{
-//		DeviceID:  "neat",
-//		Type:      db.Default,
-//		BirthDate: time.Now().UnixNano(),
-//		DeathDate: time.Now().Add(time.Second * 2).UnixNano(),
-//		Data:      []byte("hello world"),
-//		Nonce:     []byte("hello world"),
-//		KID:       "B",
-//		Alg:       "B",
-//	}
-//	recordC := db.Record{
-//		DeviceID:  "neat",
-//		Type:      db.Default,
-//		BirthDate: time.Now().UnixNano() + 100,
-//		DeathDate: time.Now().Add(time.Second * 2).UnixNano() + 100,
-//		Data:      []byte("hello world C"),
-//		Nonce:     []byte("hello world C"),
-//		KID:       "C",
-//		Alg:       "C",
-//	}
-//
-//	_, err = d.insert([]db.Record{
-//		recordC,
-//		recordB,
-//		recordA,
-//	})
-//	assert.NoError(err)
-//	time.Sleep(10)
-//
-//	records, err := d.findRecords(100, "WHERE device_id=?", "neat")
-//	assert.NoError(err)
-//
-//	for _, r := range records {
-//		fmt.Println(r.KID)
-//	}
-//	require.Len(records, 3)
-//	assert.Equal([]db.Record{recordA, recordC, recordB}, records)
-//
-//	time.Sleep(30)
-//	// testing TTL
-//	records, err = d.findRecords(100, "WHERE device_id=?", "neat")
-//
-//	fmt.Println(records)
-//	time.Sleep(10)
-//	// testing TTL
-//	records, err = d.findRecords(100, "WHERE device_id=?", "neat")
-//	fmt.Println(records)
-//
-//	require.Len(records, 1)
-//	assert.Equal([]db.Record{recordA}, records)
-//}
+import (
+	"fmt"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	db "github.com/xmidt-org/codex-db"
+	"github.com/yugabyte/gocql"
+	"log"
+	"testing"
+	"time"
+)
+
+var createStmt = `CREATE TABLE devices.events (device_id  varchar,
+												type int,
+												birthdate bigint,
+												deathdate bigint,
+												data blob,
+												nonce blob,
+												alg varchar,
+												kid varchar,
+												PRIMARY KEY (device_id, birthdate, type))
+												WITH CLUSTERING ORDER BY (birthdate DESC, type ASC)
+												AND transactions = {'enabled': 'false'};`
+
+var indexStmt = `CREATE INDEX IF NOT EXISTS search_by_event_type ON devices.events
+											(device_id, type, birthdate) WITH CLUSTERING ORDER BY (type ASC, birthdate DESC) 
+											AND transactions = {'enabled': 'false', 'consistency_level':'user_enforced'};`
+
+func TestBasicCommands(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	d, err := connect(gocql.NewCluster("127.0.0.1"))
+	defer d.close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Set up the keyspace and table.
+	if err := d.session.Query("CREATE KEYSPACE IF NOT EXISTS devices").Exec(); err != nil {
+	}
+	fmt.Println("Created keyspace devices")
+
+	if err := d.session.Query(`DROP TABLE IF EXISTS devices.events`).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := d.session.Query(createStmt).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := d.session.Query(indexStmt).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	goodRecord := db.Record{
+		DeviceID:  "neat",
+		Type:      db.Default,
+		BirthDate: time.Now().UnixNano() + time.Minute.Nanoseconds(),
+		DeathDate: time.Now().Add(time.Second * 30).UnixNano() + time.Minute.Nanoseconds(),
+		Data:      []byte("hello"),
+		Nonce:     []byte("hello"),
+		KID:       "3",
+		Alg:       "3",
+	}
+
+	_, err = d.insert([]db.Record{
+		goodRecord,
+	})
+	assert.NoError(err)
+
+	records, err := d.findRecords(100, "WHERE device_id=?", "neat")
+	require.Len(records, 1)
+	assert.Equal(goodRecord, records[0])
+}
+
+func TestMultiRecord(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	d, err := connect(gocql.NewCluster("127.0.0.1"))
+	defer d.close()
+	require.NoError(err)
+	// Set up the keyspace and table.
+	if err := d.session.Query("CREATE KEYSPACE IF NOT EXISTS devices").Exec(); err != nil {
+		require.NoError(err)
+	}
+	fmt.Println("Created keyspace devices")
+
+	if err := d.session.Query(`DROP TABLE IF EXISTS devices.events`).Exec(); err != nil {
+		require.NoError(err)
+	}
+
+	if err := d.session.Query(createStmt).Exec(); err != nil {
+		require.NoError(err)
+	}
+
+	if err := d.session.Query(indexStmt).Exec(); err != nil {
+		log.Fatal(err)
+	}
+
+	recordA := db.Record{
+		DeviceID:  "neat",
+		Type:      db.State,
+		BirthDate: time.Now().UnixNano() + time.Minute.Nanoseconds(),
+		DeathDate: time.Now().Add(time.Second * 30).UnixNano() + time.Minute.Nanoseconds(),
+		Data:      []byte("hello"),
+		Nonce:     []byte("hello"),
+		KID:       "A",
+		Alg:       "A",
+	}
+	recordB := db.Record{
+		DeviceID:  "neat",
+		Type:      db.Default,
+		BirthDate: time.Now().UnixNano(),
+		DeathDate: time.Now().Add(time.Second * 2).UnixNano(),
+		Data:      []byte("hello world"),
+		Nonce:     []byte("hello world"),
+		KID:       "B",
+		Alg:       "B",
+	}
+	recordC := db.Record{
+		DeviceID:  "neat",
+		Type:      db.Default,
+		BirthDate: time.Now().UnixNano() + 100,
+		DeathDate: time.Now().Add(time.Second * 2).UnixNano() + 100,
+		Data:      []byte("hello world C"),
+		Nonce:     []byte("hello world C"),
+		KID:       "C",
+		Alg:       "C",
+	}
+
+	_, err = d.insert([]db.Record{
+		recordC,
+		recordB,
+		recordA,
+	})
+	assert.NoError(err)
+	time.Sleep(10)
+
+	records, err := d.findRecords(100, "WHERE device_id=?", "neat")
+	assert.NoError(err)
+
+	for _, r := range records {
+		fmt.Println(r.KID)
+	}
+	require.Len(records, 3)
+	assert.Equal([]db.Record{recordA, recordC, recordB}, records)
+
+	time.Sleep(10)
+	// testing TTL
+	records, err = d.findRecords(100, "WHERE device_id=?", "neat")
+
+	fmt.Println(10, len(records))
+	time.Sleep(30)
+	// testing TTL
+	records, err = d.findRecords(100, "WHERE device_id=?", "neat")
+	fmt.Println(30, len(records))
+
+	require.Len(records, 1)
+	assert.Equal([]db.Record{recordA}, records)
+}

@@ -23,6 +23,7 @@ import (
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/yugabyte/gocql"
+	"time"
 )
 
 type (
@@ -120,11 +121,11 @@ func (b *dbDecorator) findBlacklist() ([]blacklist.BlackListedItem, error) {
 
 func (b *dbDecorator) insert(records []db.Record) (int, error) {
 
-	batch := b.session.NewBatch(gocql.LoggedBatch)
+	batch := b.session.NewBatch(gocql.UnloggedBatch)
 
 	for _, record := range records {
-		//ttl := int(time.Unix(0, record.DeathDate).Sub(time.Now()).Seconds())
-		batch.Query("INSERT INTO devices.events  (device_id, type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?,?,?,?,?,?,?,?) USING TTL 10;",
+		ttl := int(time.Unix(0, record.DeathDate).Sub(time.Now()).Seconds())
+		err := b.session.Query("INSERT INTO devices.events  (device_id, type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?,?,?,?,?,?,?,?) USING TTL ?;",
 			record.DeviceID,
 			record.Type,
 			record.BirthDate,
@@ -133,7 +134,9 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 			record.Nonce,
 			record.Alg,
 			record.KID,
-		)
+			ttl,
+		).Exec()
+		fmt.Println(err)
 	}
 	err := b.session.ExecuteBatch(batch)
 	return batch.Size(), err
