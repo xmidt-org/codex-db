@@ -56,14 +56,17 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 		records []db.Record
 	)
 
-	var device string
-	var eventType int
-	var birthdate int64
-	var deathdate int64
-	var data []byte
-	var nonce []byte
-	var alg string
-	var kid string
+	// row fields for the record
+	var (
+		device    string
+		eventType int
+		birthdate int64
+		deathdate int64
+		data      []byte
+		nonce     []byte
+		alg       string
+		kid       string
+	)
 
 	iter := b.session.Query(fmt.Sprintf("SELECT device_id, type, birthdate, deathdate, data, nonce, alg, kid FROM devices.events %s LIMIT ?", filter), append(where, limit)...).Iter()
 
