@@ -15,16 +15,17 @@
  *
  */
 
-package postgresql
+package cassandra
 
 import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/provider"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics"
 )
 
 const (
+	RetryCounter                = "retry_count"
 	PoolOpenConnectionsGauge    = "pool_open_connections"
 	PoolInUseConnectionsGauge   = "pool_in_use_connections"
 	PoolIdleConnectionsGauge    = "pool_idle_connections"
@@ -32,50 +33,29 @@ const (
 	SQLWaitDurationCounter      = "sql_wait_duration_seconds"
 	SQLMaxIdleClosedCounter     = "sql_max_idle_closed"
 	SQLMaxLifetimeClosedCounter = "sql_max_lifetime_closed"
-	SQLQuerySuccessCounter      = "sql_query_success_count"
-	SQLQueryFailureCounter      = "sql_query_failure_count"
-	SQLInsertedRecordsCounter   = "sql_inserted_rows_count"
-	SQLReadRecordsCounter       = "sql_read_rows_count"
-	SQLDeletedRecordsCounter    = "sql_deleted_rows_count"
+
+	SQLDurationSeconds        = "sql_duration_seconds"
+	SQLQuerySuccessCounter    = "sql_query_success_count"
+	SQLQueryFailureCounter    = "sql_query_failure_count"
+	SQLInsertedRecordsCounter = "sql_inserted_rows_count"
+	SQLReadRecordsCounter     = "sql_read_rows_count"
+	SQLDeletedRecordsCounter  = "sql_deleted_rows_count"
 )
 
 //Metrics returns the Metrics relevant to this package
 func Metrics() []xmetrics.Metric {
 	return []xmetrics.Metric{
 		{
-			Name: PoolOpenConnectionsGauge,
-			Type: "gauge",
-			Help: "The number of established connections both in use and idle",
-		},
-		{
 			Name: PoolInUseConnectionsGauge,
 			Type: "gauge",
 			Help: " The number of connections currently in use",
 		},
 		{
-			Name: PoolIdleConnectionsGauge,
-			Type: "gauge",
-			Help: "The number of idle connections",
-		},
-		{
-			Name: SQLWaitCounter,
-			Type: "counter",
-			Help: "The total number of connections waited for",
-		},
-		{
-			Name: SQLWaitDurationCounter,
-			Type: "counter",
-			Help: "The total time blocked waiting for a new connection (nano)",
-		},
-		{
-			Name: SQLMaxIdleClosedCounter,
-			Type: "counter",
-			Help: "The total number of connections closed due to SetMaxIdleConns",
-		},
-		{
-			Name: SQLMaxLifetimeClosedCounter,
-			Type: "counter",
-			Help: "The total number of connections closed due to SetConnMaxLifetime",
+			Name:       SQLDurationSeconds,
+			Type:       "histogram",
+			Help:       "A histogram of latencies for requests.",
+			Buckets:    []float64{0.0625, 0.125, .25, .5, 1, 5, 10, 20, 40, 80, 160},
+			LabelNames: []string{db.TypeLabel, CountLabel},
 		},
 		{
 			Name:       SQLQuerySuccessCounter,
@@ -108,15 +88,8 @@ func Metrics() []xmetrics.Metric {
 }
 
 type Measures struct {
-	//Retry                xmetrics.Incrementer
-	PoolOpenConnections  metrics.Gauge
 	PoolInUseConnections metrics.Gauge
-	PoolIdleConnections  metrics.Gauge
-
-	SQLWaitCount         metrics.Counter
-	SQLWaitDuration      metrics.Counter
-	SQLMaxIdleClosed     metrics.Counter
-	SQLMaxLifetimeClosed metrics.Counter
+	SQLDuration          metrics.Histogram
 	SQLQuerySuccessCount metrics.Counter
 	SQLQueryFailureCount metrics.Counter
 	SQLInsertedRecords   metrics.Counter
@@ -126,15 +99,8 @@ type Measures struct {
 
 func NewMeasures(p provider.Provider) Measures {
 	return Measures{
-		//Retry:                xmetrics.NewIncrementer(p.NewCounter(RetryCounter)),
-		PoolOpenConnections:  p.NewGauge(PoolOpenConnectionsGauge),
 		PoolInUseConnections: p.NewGauge(PoolInUseConnectionsGauge),
-		PoolIdleConnections:  p.NewGauge(PoolIdleConnectionsGauge),
-
-		SQLWaitCount:         p.NewCounter(SQLWaitCounter),
-		SQLWaitDuration:      p.NewCounter(SQLWaitDurationCounter),
-		SQLMaxIdleClosed:     p.NewCounter(SQLMaxIdleClosedCounter),
-		SQLMaxLifetimeClosed: p.NewCounter(SQLMaxLifetimeClosedCounter),
+		SQLDuration:          p.NewHistogram(SQLDurationSeconds, 11),
 		SQLQuerySuccessCount: p.NewCounter(SQLQuerySuccessCounter),
 		SQLQueryFailureCount: p.NewCounter(SQLQueryFailureCounter),
 		SQLInsertedRecords:   p.NewCounter(SQLInsertedRecordsCounter),
