@@ -125,7 +125,14 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 
 	for _, record := range records {
 		ttl := int(time.Unix(0, record.DeathDate).Sub(time.Now()).Seconds())
-		err := b.session.Query("INSERT INTO devices.events  (device_id, type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?,?,?,?,?,?,?,?) USING TTL ?;",
+		// yugabyte bounds checking
+		if ttl < 0 {
+			ttl = 0
+		}
+		if ttl > 2147483647{
+			ttl = 2147483647
+		}
+		batch.Query("INSERT INTO devices.events  (device_id, type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?,?,?,?,?,?,?,?) USING TTL ?;",
 			record.DeviceID,
 			record.Type,
 			record.BirthDate,
@@ -135,8 +142,7 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 			record.Alg,
 			record.KID,
 			ttl,
-		).Exec()
-		fmt.Println(err)
+		)
 	}
 	err := b.session.ExecuteBatch(batch)
 	return batch.Size(), err

@@ -18,5 +18,31 @@ Codex-db provides the database packages needed for the [codex project](https://g
 ## Install
 This repo is a library of packages.  There is no installation.
 
+
+## Cassandra DB setup
+```cassandraql
+CREATE KEYSPACE IF NOT EXISTS devices;
+CREATE TABLE devices.events (device_id  varchar,
+    type int,
+    birthdate bigint,
+    deathdate bigint,
+    data blob,
+    nonce blob,
+    alg varchar,
+    kid varchar,
+    PRIMARY KEY (device_id, birthdate, type)
+) WITH CLUSTERING ORDER BY (birthdate DESC, type ASC)
+    AND default_time_to_live = 0
+    AND transactions = {'enabled': 'false'};
+CREATE INDEX search_by_event_type ON devices.events
+    (device_id, type, birthdate) 
+    WITH CLUSTERING ORDER BY (type ASC, birthdate DESC)
+    AND default_time_to_live = 0
+    AND transactions = {'enabled': 'false', 'consistency_level':'user_enforced'};
+CREATE TABLE devices.blacklist (device_id varchar PRIMARY KEY, reason varchar);
+```
+
+
+
 ## Contributing
 Refer to [CONTRIBUTING.md](CONTRIBUTING.md).
