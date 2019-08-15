@@ -25,7 +25,6 @@ import (
 )
 
 const (
-	RetryCounter                = "retry_count"
 	PoolOpenConnectionsGauge    = "pool_open_connections"
 	PoolInUseConnectionsGauge   = "pool_in_use_connections"
 	PoolIdleConnectionsGauge    = "pool_idle_connections"
@@ -43,12 +42,6 @@ const (
 //Metrics returns the Metrics relevant to this package
 func Metrics() []xmetrics.Metric {
 	return []xmetrics.Metric{
-		// TODO: Fix Retry Counter
-		{
-			Name: RetryCounter,
-			Type: "counter",
-			Help: "Indicates the number of retries for sql queries",
-		},
 		{
 			Name: PoolOpenConnectionsGauge,
 			Type: "gauge",
@@ -115,7 +108,7 @@ func Metrics() []xmetrics.Metric {
 }
 
 type Measures struct {
-	Retry                xmetrics.Incrementer
+	//Retry                xmetrics.Incrementer
 	PoolOpenConnections  metrics.Gauge
 	PoolInUseConnections metrics.Gauge
 	PoolIdleConnections  metrics.Gauge
@@ -133,7 +126,7 @@ type Measures struct {
 
 func NewMeasures(p provider.Provider) Measures {
 	return Measures{
-		Retry:                xmetrics.NewIncrementer(p.NewCounter(RetryCounter)),
+		//Retry:                xmetrics.NewIncrementer(p.NewCounter(RetryCounter)),
 		PoolOpenConnections:  p.NewGauge(PoolOpenConnectionsGauge),
 		PoolInUseConnections: p.NewGauge(PoolInUseConnectionsGauge),
 		PoolIdleConnections:  p.NewGauge(PoolIdleConnectionsGauge),

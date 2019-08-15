@@ -67,10 +67,11 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	clusterConfig.Timeout = config.OpTimeout
 
 	dbConn := Connection{
-		health: health,
+		health:   health,
+		measures: NewMeasures(provider),
 	}
 
-	conn, err := connect(clusterConfig)
+	conn, err := connectWithMetrics(clusterConfig, dbConn.measures)
 	if err != nil {
 		return &Connection{}, emperror.WrapWith(err, "Connecting to database failed", "hosts", config.Hosts)
 	}
@@ -81,7 +82,6 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	dbConn.mutliInsert = conn
 	dbConn.closer = conn
 	dbConn.pinger = conn
-	dbConn.measures = NewMeasures(provider)
 
 	return &dbConn, nil
 }
