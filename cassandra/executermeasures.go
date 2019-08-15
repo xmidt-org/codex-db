@@ -36,12 +36,14 @@ type dbMeasuresDecorator struct {
 	closer
 }
 
+const CountLabel = "count"
+
 func (b *dbMeasuresDecorator) findRecords(limit int, filter string, where ...interface{}) ([]db.Record, error) {
 
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	records, err := b.finder.findRecords(limit, filter, where...)
-	b.measures.SQLDuration.With("interface", "finder").Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return records, err
@@ -51,7 +53,7 @@ func (b *dbMeasuresDecorator) getList(offset string, limit int) ([]string, error
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	result, err := b.deviceFinder.getList(offset, limit)
-	b.measures.SQLDuration.With("interface", "deviceFinder").Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType, CountLabel, strconv.Itoa(len(result))).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return result, err
@@ -61,7 +63,7 @@ func (b *dbMeasuresDecorator) findBlacklist() ([]blacklist.BlackListedItem, erro
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	records, err := b.findList.findBlacklist()
-	b.measures.SQLDuration.With("interface", "findList").Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.BlacklistReadType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return records, err
@@ -71,7 +73,7 @@ func (b *dbMeasuresDecorator) insert(records []db.Record) (int, error) {
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	count, err := b.multiinserter.insert(records)
-	b.measures.SQLDuration.With("interface", "multiinserter", "count", strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.InsertType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return count, err
@@ -81,7 +83,7 @@ func (b *dbMeasuresDecorator) ping() error {
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	err := b.pinger.ping()
-	b.measures.SQLDuration.With("interface", "pinger").Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.PingType).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return err
