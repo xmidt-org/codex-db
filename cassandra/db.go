@@ -39,7 +39,7 @@ var (
 
 const (
 	defaultOpTimeout = time.Duration(10) * time.Second
-	defaultDatabase = "devices"
+	defaultDatabase  = "devices"
 )
 
 type Config struct {
@@ -105,7 +105,7 @@ func validateConfig(config *Config) {
 		config.OpTimeout = defaultOpTimeout
 	}
 
-	if config.Database == ""{
+	if config.Database == "" {
 		config.Database = defaultDatabase
 	}
 
