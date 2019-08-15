@@ -129,7 +129,7 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 		if ttl < 0 {
 			ttl = 0
 		}
-		if ttl > 2147483647{
+		if ttl > 2147483647 {
 			ttl = 2147483647
 		}
 		batch.Query("INSERT INTO devices.events  (device_id, type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?,?,?,?,?,?,?,?) USING TTL ?;",
