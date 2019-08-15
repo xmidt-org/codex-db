@@ -81,6 +81,7 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	dbConn.mutliInsert = conn
 	dbConn.closer = conn
 	dbConn.pinger = conn
+	dbConn.measures = NewMeasures(provider)
 
 	return &dbConn, nil
 }
