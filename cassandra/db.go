@@ -100,7 +100,7 @@ func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error)
 
 // GetRecords returns a list of records for a given device and event type.
 func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
-	deviceInfo, err := c.finder.findRecords(limit, "device_id = ? AND type = ?", deviceID, eventType)
+	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id = ? AND type = ?", deviceID, eventType)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID)
