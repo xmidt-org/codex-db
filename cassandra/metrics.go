@@ -51,11 +51,11 @@ func Metrics() []xmetrics.Metric {
 			Help: " The number of connections currently in use",
 		},
 		{
-			Name:    SQLDurationSeconds,
-			Type:    "histogram",
-			Help:    "A histogram of latencies for requests.",
-			Buckets: []float64{0.0625, 0.125, .25, .5, 1, 5, 10, 20, 40, 80, 160},
-			LabelNames: []string{db.TypeLabel, "count"},
+			Name:       SQLDurationSeconds,
+			Type:       "histogram",
+			Help:       "A histogram of latencies for requests.",
+			Buckets:    []float64{0.0625, 0.125, .25, .5, 1, 5, 10, 20, 40, 80, 160},
+			LabelNames: []string{db.TypeLabel, CountLabel},
 		},
 		{
 			Name:       SQLQuerySuccessCounter,
