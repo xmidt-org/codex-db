@@ -37,7 +37,13 @@ var (
 	errNoEvents         = errors.New("no records to be inserted")
 )
 
+const (
+	defaultOpTimeout = time.Duration(10) * time.Second
+	defaultDatabase = "devices"
+)
+
 type Config struct {
+	// Hosts to  connect to. Must have at least one
 	Hosts []string
 
 	// Database aka Keyspace for cassandra
@@ -62,6 +68,12 @@ type Connection struct {
 }
 
 func CreateDbConnection(config Config, provider provider.Provider, health *health.Health) (*Connection, error) {
+	if len(config.Hosts) == 0 {
+		return &Connection{}, errors.New("number of hosts must be > 0")
+	}
+
+	validateConfig(&config)
+
 	clusterConfig := gocql.NewCluster(config.Hosts...)
 	clusterConfig.Keyspace = config.Database
 	clusterConfig.Timeout = config.OpTimeout
@@ -84,6 +96,19 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	dbConn.pinger = conn
 
 	return &dbConn, nil
+}
+
+func validateConfig(config *Config) {
+	zeroDuration := time.Duration(0) * time.Second
+
+	if config.OpTimeout == zeroDuration {
+		config.OpTimeout = defaultOpTimeout
+	}
+
+	if config.Database == ""{
+		config.Database = defaultDatabase
+	}
+
 }
 
 // GetRecords returns a list of records for a given device.
