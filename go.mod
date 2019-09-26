@@ -6,7 +6,6 @@ require (
 	github.com/InVisionApp/go-health v2.1.0+incompatible
 	github.com/InVisionApp/go-logger v1.0.1
 	github.com/go-kit/kit v0.8.0
-	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/goph/emperror v0.17.2
 	github.com/jinzhu/gorm v1.9.10
 	github.com/prometheus/common v0.4.1
