@@ -126,17 +126,6 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 	batch := b.session.NewBatch(gocql.UnloggedBatch)
 
 	for _, record := range records {
-		// TTL is not supported at the row level
-		// DO NOT DELETE
-		//ttl := int(time.Unix(0, record.DeathDate).Sub(time.Now()).Seconds())
-		//// yugabyte bounds checking
-		//if ttl < 0 {
-		//	ttl = 0
-		//}
-		//if ttl > 2147483647 {
-		//	ttl = 2147483647
-		//}
-
 		// there can be no spaces for some weird reason. Otherwise the database returns and error.
 		batch.Query("INSERT INTO devices.events (device_id, record_type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
 			record.DeviceID,
@@ -147,7 +136,6 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 			record.Nonce,
 			record.Alg,
 			record.KID,
-			//ttl,
 		)
 	}
 	err := b.session.ExecuteBatch(batch)
