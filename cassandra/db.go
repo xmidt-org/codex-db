@@ -111,7 +111,6 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 		}
 	}
 
-
 	dbConn := Connection{
 		health:   health,
 		measures: NewMeasures(provider),
