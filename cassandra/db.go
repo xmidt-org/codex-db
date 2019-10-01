@@ -51,6 +51,22 @@ type Config struct {
 
 	//OpTimeout
 	OpTimeout time.Duration
+
+	// SSLRootCert used for enabling tls to the cluster. SSLKey, and SSLCert must also be set.
+	SSLRootCert string
+	// SSLKey used for enabling tls to the cluster. SSLRootCert, and SSLCert must also be set.
+	SSLKey string
+	// SSLCert used for enabling tls to the cluster. SSLRootCert, and SSLRootCert must also be set.
+	SSLCert string
+	// If you want to verify the hostname and server cert (like a wildcard for cass cluster) then you should turn this on
+	// This option is basically the inverse of InSecureSkipVerify
+	// See InSecureSkipVerify in http://golang.org/pkg/crypto/tls/ for more info
+	EnableHostVerification bool
+
+	// Username to authenticate into the cluster. Password must also be provided.
+	Username string
+	// Password to authenticate into the cluster. Username must also be provided.
+	Password string
 }
 
 type Connection struct {
@@ -75,8 +91,25 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	validateConfig(&config)
 
 	clusterConfig := gocql.NewCluster(config.Hosts...)
+	clusterConfig.Consistency = gocql.LocalQuorum
 	clusterConfig.Keyspace = config.Database
 	clusterConfig.Timeout = config.OpTimeout
+	// setup ssl
+	if config.SSLRootCert != "" && config.SSLCert != "" && config.SSLKey != "" {
+		clusterConfig.SslOpts = &gocql.SslOptions{
+			CertPath:               config.SSLCert,
+			KeyPath:                config.SSLKey,
+			CaPath:                 config.SSLRootCert,
+			EnableHostVerification: config.EnableHostVerification,
+		}
+	}
+	// setup authentication
+	if config.Username != "" && config.Password != "" {
+		clusterConfig.Authenticator = gocql.PasswordAuthenticator{
+			Username: config.Username,
+			Password: config.Password,
+		}
+	}
 
 	dbConn := Connection{
 		health:   health,
@@ -108,7 +141,6 @@ func validateConfig(config *Config) {
 	if config.Database == "" {
 		config.Database = defaultDatabase
 	}
-
 }
 
 // GetRecords returns a list of records for a given device.
