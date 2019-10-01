@@ -23,7 +23,6 @@ import (
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/yugabyte/gocql"
-	"time"
 )
 
 type (
@@ -68,7 +67,7 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 		kid       string
 	)
 
-	iter := b.session.Query(fmt.Sprintf("SELECT device_id, type, birthdate, deathdate, data, nonce, alg, kid FROM devices.events %s LIMIT ?", filter), append(where, limit)...).Iter()
+	iter := b.session.Query(fmt.Sprintf("SELECT device_id, record_type, birthdate, deathdate, data, nonce, alg, kid FROM devices.events %s LIMIT ?", filter), append(where, limit)...).Iter()
 
 	for iter.Scan(&device, &eventType, &birthdate, &deathdate, &data, &nonce, &alg, &kid) {
 		records = append(records, db.Record{
@@ -127,16 +126,19 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 	batch := b.session.NewBatch(gocql.UnloggedBatch)
 
 	for _, record := range records {
-		ttl := int(time.Unix(0, record.DeathDate).Sub(time.Now()).Seconds())
-		// yugabyte bounds checking
-		if ttl < 0 {
-			ttl = 0
-		}
-		if ttl > 2147483647 {
-			ttl = 2147483647
-		}
+		// TTL is not supported at the row level
+		// DO NOT DELETE
+		//ttl := int(time.Unix(0, record.DeathDate).Sub(time.Now()).Seconds())
+		//// yugabyte bounds checking
+		//if ttl < 0 {
+		//	ttl = 0
+		//}
+		//if ttl > 2147483647 {
+		//	ttl = 2147483647
+		//}
+
 		// there can be no spaces for some weird reason. Otherwise the database returns and error.
-		batch.Query("INSERT INTO devices.events (device_id,type,birthdate,deathdate,data,nonce,alg,kid) VALUES (?,?,?,?,?,?,?,?) USING TTL ?;",
+		batch.Query("INSERT INTO devices.events (device_id, record_type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
 			record.DeviceID,
 			record.Type,
 			record.BirthDate,
@@ -145,7 +147,7 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 			record.Nonce,
 			record.Alg,
 			record.KID,
-			ttl,
+			//ttl,
 		)
 	}
 	err := b.session.ExecuteBatch(batch)
