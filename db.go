@@ -37,7 +37,7 @@ const (
 // metadata to be used for the record.  If the data is encrypted, the Nonce,
 // Alg, and KID values will be needed to determine how to correctly decrypt it.
 type Record struct {
-	Type      EventType `json:"type" bson:"type" gorm:"type:int"`
+	Type      EventType `json:"recordtype" bson:"recordtype" gorm:"recordtype:int"`
 	DeviceID  string    `json:"deviceid" bson:"deviceid"`
 	BirthDate int64     `json:"birthdate" bson:"birthdate"`
 	DeathDate int64     `json:"deathdate" bson:"deathdate"`
