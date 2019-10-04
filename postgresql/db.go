@@ -25,7 +25,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/codex-db/blacklist"
 
 	"github.com/go-kit/kit/metrics/provider"
@@ -268,7 +268,7 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	var (
 		deviceInfo []db.Record
 	)
-	err := c.finder.findRecords(&deviceInfo, limit, "device_id = ? AND type = ?", deviceID, eventType)
+	err := c.finder.findRecords(&deviceInfo, limit, "device_id = ? AND record_type = ?", deviceID, eventType)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID)
