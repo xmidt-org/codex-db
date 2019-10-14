@@ -15,11 +15,22 @@ Codex-db provides the database packages needed for the codex project.
 
 Codex-db provides the database packages needed for the [codex project](https://github.com/xmidt-org/codex-deploy).
 
+## Table of Contents
+
+- [Code of Conduct](#code-of-conduct)
+- [Install](#install)
+- [Cassandra DB Setup](#cassandra-db-setup)
+- [Contributing](#contributing)
+
+## Code of Conduct
+
+This project and everyone participating in it are governed by the [XMiDT Code Of Conduct](https://xmidt.io/code_of_conduct/). 
+By participating, you agree to this Code.
+
 ## Install
 This repo is a library of packages.  There is no installation.
 
-
-## Cassandra DB setup
+## Cassandra DB Setup
 ```cassandraql
 CREATE KEYSPACE IF NOT EXISTS devices;
 CREATE TABLE devices.events (device_id  varchar,
@@ -41,8 +52,6 @@ CREATE INDEX search_by_record_type ON devices.events
     AND transactions = {'enabled': 'false', 'consistency_level':'user_enforced'};
 CREATE TABLE devices.blacklist (device_id varchar PRIMARY KEY, reason varchar);
 ```
-
-
 
 ## Contributing
 Refer to [CONTRIBUTING.md](CONTRIBUTING.md).
