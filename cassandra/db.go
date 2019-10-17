@@ -23,7 +23,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/InVisionApp/go-health"
+	"github.com/InVisionApp/go-health/v2"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
 	db "github.com/xmidt-org/codex-db"
@@ -181,8 +181,8 @@ func (c *Connection) GetBlacklist() (list []blacklist.BlackListedItem, err error
 
 // GetDeviceList returns a list of device ids where the device id is greater
 // than the offset device id.
-func (c *Connection) GetDeviceList(offset string, limit int) ([]string, error) {
-	list, err := c.deviceFinder.getList(offset, limit)
+func (c *Connection) GetDeviceList(startDate time.Time, endDate time.Time, offset int, limit int) ([]string, error) {
+	list, err := c.deviceFinder.getList(startDate, endDate, offset, limit)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 		return []string{}, emperror.WrapWith(err, "Getting list of devices from database failed")

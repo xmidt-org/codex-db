@@ -49,10 +49,10 @@ func (b *dbMeasuresDecorator) findRecords(limit int, filter string, where ...int
 	return records, err
 }
 
-func (b *dbMeasuresDecorator) getList(offset string, limit int) ([]string, error) {
+func (b *dbMeasuresDecorator) getList(startDate time.Time, endDate time.Time, offset int, limit int) ([]string, error) {
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
-	result, err := b.deviceFinder.getList(offset, limit)
+	result, err := b.deviceFinder.getList(startDate, endDate, offset, limit)
 	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType, CountLabel, strconv.Itoa(len(result))).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 

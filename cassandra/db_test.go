@@ -26,6 +26,7 @@ import (
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 	"github.com/xmidt-org/wrp-go/wrp"
 	"testing"
+	"time"
 )
 
 var (
@@ -207,7 +208,7 @@ func TestDeviceList(t *testing.T) {
 			p.Assert(t, SQLQuerySuccessCounter)(xmetricstest.Value(0.0))
 			p.Assert(t, SQLQueryFailureCounter)(xmetricstest.Value(0.0))
 
-			result, err := dbConnection.GetDeviceList("", 10)
+			result, err := dbConnection.GetDeviceList(time.Now(), time.Now(), 0, 10)
 			mockObj.AssertExpectations(t)
 			p.Assert(t, SQLQuerySuccessCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedSuccessMetric))
 			p.Assert(t, SQLQueryFailureCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedFailureMetric))

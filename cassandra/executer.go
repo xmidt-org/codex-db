@@ -23,6 +23,7 @@ import (
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/yugabyte/gocql"
+	"time"
 )
 
 type (
@@ -33,7 +34,7 @@ type (
 		findBlacklist() ([]blacklist.BlackListedItem, error)
 	}
 	deviceFinder interface {
-		getList(offset string, limit int) ([]string, error)
+		getList(startDate time.Time, endDate time.Time, offset int, limit int) ([]string, error)
 	}
 	multiinserter interface {
 		insert(records []db.Record) (int, error)
@@ -86,12 +87,12 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 	return records, err
 }
 
-func (b *dbDecorator) getList(offset string, limit int) ([]string, error) {
+func (b *dbDecorator) getList(startDate time.Time, endDate time.Time, offset int, limit int) ([]string, error) {
 	var result []string
 
 	var device string
 
-	iter := b.session.Query("SELECT device_id from devices.events WHERE device_id > ? GROUP BY device_id LIMIT ?", offset, limit).Iter()
+	iter := b.session.Query("SELECT device_id from devices.events WHERE birthdate  >= ? AND birthdate <= ? GROUP BY device_id LIMIT ? OFFSET ?", startDate.UnixNano(), endDate.UnixNano(), limit, offset).Iter()
 	for iter.Scan(&device) {
 		result = append(result, device)
 	}
