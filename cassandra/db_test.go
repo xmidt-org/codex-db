@@ -204,7 +204,7 @@ func TestDeviceList(t *testing.T) {
 				measures:     m,
 				deviceFinder: mockObj,
 			}
-			mockObj.On("getList", mock.Anything, mock.Anything, mock.Anything).Return(tc.expectedIDs, tc.expectedErr).Once()
+			mockObj.On("getList", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.expectedIDs, tc.expectedErr).Once()
 			p.Assert(t, SQLQuerySuccessCounter)(xmetricstest.Value(0.0))
 			p.Assert(t, SQLQueryFailureCounter)(xmetricstest.Value(0.0))
 
