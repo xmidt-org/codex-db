@@ -31,8 +31,8 @@ import (
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
 
-	"github.com/InVisionApp/go-health"
-	"github.com/InVisionApp/go-health/checkers"
+	"github.com/InVisionApp/go-health/v2"
+	"github.com/InVisionApp/go-health/v2/checkers"
 )
 
 var (

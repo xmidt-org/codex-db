@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"github.com/stretchr/testify/mock"
 	db "github.com/xmidt-org/codex-db"
+	"time"
 )
 
 type mockFinder struct {
@@ -41,8 +42,8 @@ type mockDeviceFinder struct {
 	mock.Mock
 }
 
-func (df *mockDeviceFinder) getList(offset string, limit int) ([]string, error) {
-	args := df.Called(offset, limit)
+func (df *mockDeviceFinder) getList(startDate time.Time, endDate time.Time, offset int, limit int) ([]string, error) {
+	args := df.Called(startDate, endDate, offset, limit)
 	return args.Get(0).([]string), args.Error(1)
 }
 
