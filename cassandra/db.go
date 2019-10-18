@@ -74,7 +74,7 @@ type Connection struct {
 	finder       finder
 	findList     findList
 	deviceFinder deviceFinder
-	mutliInsert  multiinserter
+	mutliInsert  multiInserter
 	closer       closer
 	pinger       pinger
 
