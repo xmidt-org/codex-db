@@ -31,7 +31,7 @@ type dbMeasuresDecorator struct {
 	finder
 	findList
 	deviceFinder
-	multiinserter
+	multiInserter
 	pinger
 	closer
 }
@@ -72,7 +72,7 @@ func (b *dbMeasuresDecorator) findBlacklist() ([]blacklist.BlackListedItem, erro
 func (b *dbMeasuresDecorator) insert(records []db.Record) (int, error) {
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
-	count, err := b.multiinserter.insert(records)
+	count, err := b.multiInserter.insert(records)
 	b.measures.SQLDuration.With(db.TypeLabel, db.InsertType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
@@ -107,7 +107,7 @@ func connectWithMetrics(clusterConfig *gocql.ClusterConfig, measures Measures) (
 		finder:        db,
 		findList:      db,
 		deviceFinder:  db,
-		multiinserter: db,
+		multiInserter: db,
 		pinger:        db,
 		closer:        db,
 	}, nil

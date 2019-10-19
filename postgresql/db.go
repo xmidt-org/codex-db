@@ -83,7 +83,7 @@ type Connection struct {
 	finder       finder
 	findList     findList
 	deviceFinder deviceFinder
-	mutliInsert  multiinserter
+	multiInsert  multiInserter
 	deleter      deleter
 	closer       closer
 	pinger       pinger
@@ -152,7 +152,7 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	dbConn.finder = conn
 	dbConn.findList = conn
 	dbConn.deviceFinder = conn
-	dbConn.mutliInsert = conn
+	dbConn.multiInsert = conn
 	dbConn.deleter = conn
 	dbConn.closer = conn
 	dbConn.pinger = conn
@@ -328,7 +328,7 @@ func (c *Connection) DeleteRecord(shard int, deathDate int64, recordID int64) er
 
 // InsertEvent adds a list of records to the table.
 func (c *Connection) InsertRecords(records ...db.Record) error {
-	rowsAffected, err := c.mutliInsert.insert(records)
+	rowsAffected, err := c.multiInsert.insert(records)
 	c.measures.SQLInsertedRecords.Add(float64(rowsAffected))
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.InsertType).Add(1.0)

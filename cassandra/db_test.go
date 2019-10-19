@@ -261,7 +261,7 @@ func TestMultiInsertEvent(t *testing.T) {
 			m := NewMeasures(p)
 			dbConnection := Connection{
 				measures:    m,
-				mutliInsert: mockObj,
+				multiInsert: mockObj,
 			}
 			if tc.expectedCalls > 0 {
 				mockObj.On("insert", mock.Anything).Return(3, tc.createErr).Times(tc.expectedCalls)
