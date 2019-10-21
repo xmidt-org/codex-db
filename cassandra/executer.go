@@ -36,7 +36,7 @@ type (
 	deviceFinder interface {
 		getList(startDate time.Time, endDate time.Time, offset int, limit int) ([]string, error)
 	}
-	multiinserter interface {
+	multiInserter interface {
 		insert(records []db.Record) (int, error)
 	}
 	pinger interface {

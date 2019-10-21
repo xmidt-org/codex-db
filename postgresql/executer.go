@@ -42,7 +42,7 @@ type (
 	deviceFinder interface {
 		getList(offset string, limit int, where ...interface{}) ([]string, error)
 	}
-	multiinserter interface {
+	multiInserter interface {
 		insert(records []db.Record) (int64, error)
 	}
 	deleter interface {
