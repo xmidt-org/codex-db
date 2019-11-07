@@ -21,7 +21,6 @@ import (
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/codex-db/blacklist"
 	"github.com/yugabyte/gocql"
-	"strconv"
 	"time"
 )
 
@@ -43,7 +42,7 @@ func (b *dbMeasuresDecorator) findRecords(limit int, filter string, where ...int
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	records, err := b.finder.findRecords(limit, filter, where...)
-	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return records, err
@@ -53,7 +52,7 @@ func (b *dbMeasuresDecorator) getList(startDate time.Time, endDate time.Time, of
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	result, err := b.deviceFinder.getList(startDate, endDate, offset, limit)
-	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType, CountLabel, strconv.Itoa(len(result))).Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.ReadType).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return result, err
@@ -63,7 +62,7 @@ func (b *dbMeasuresDecorator) findBlacklist() ([]blacklist.BlackListedItem, erro
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	records, err := b.findList.findBlacklist()
-	b.measures.SQLDuration.With(db.TypeLabel, db.BlacklistReadType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.BlacklistReadType).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return records, err
@@ -73,7 +72,7 @@ func (b *dbMeasuresDecorator) insert(records []db.Record) (int, error) {
 	b.measures.PoolInUseConnections.Add(1.0)
 	now := time.Now()
 	count, err := b.multiInserter.insert(records)
-	b.measures.SQLDuration.With(db.TypeLabel, db.InsertType, CountLabel, strconv.Itoa(len(records))).Observe(time.Since(now).Seconds())
+	b.measures.SQLDuration.With(db.TypeLabel, db.InsertType).Observe(time.Since(now).Seconds())
 	b.measures.PoolInUseConnections.Add(-1.0)
 
 	return count, err
