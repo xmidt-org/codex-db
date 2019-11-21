@@ -28,18 +28,19 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/semaphore"
 )
 
 const (
-	minMaxWorkers       = 1
-	defaultMaxWorkers   = 5
-	minMaxBatchSize     = 0
-	defaultMaxBatchSize = 1
-	minMaxBatchWaitTime = time.Duration(1) * time.Millisecond
-	defaultMinQueueSize = 5
+	minParseWorkers      = 1
+	minInsertWorkers     = 1
+	defaultInsertWorkers = 5
+	minMaxBatchSize      = 0
+	defaultMaxBatchSize  = 1
+	minMaxBatchWaitTime  = time.Duration(1) * time.Millisecond
+	defaultMinQueueSize  = 5
 )
 
 var (
@@ -59,6 +60,7 @@ func defaultTicker(d time.Duration) (<-chan time.Time, func()) {
 // that an event that needs to be inserted isn't waiting for longer than a set
 // period of time and that each batch doesn't pass a specified size.
 type BatchInserter struct {
+	numBatchers   int
 	insertQueue   chan db.Record
 	inserter      db.Inserter
 	insertWorkers semaphore.Interface
@@ -71,7 +73,8 @@ type BatchInserter struct {
 
 // Config holds the configuration values for a batch inserter.
 type Config struct {
-	MaxWorkers       int
+	ParseWorkers     int
+	MaxInsertWorkers int
 	MaxBatchSize     int
 	MaxBatchWaitTime time.Duration
 	QueueSize        int
@@ -84,8 +87,11 @@ func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider
 	if inserter == nil {
 		return nil, errors.New("no inserter")
 	}
-	if config.MaxWorkers < minMaxWorkers {
-		config.MaxWorkers = defaultMaxWorkers
+	if config.ParseWorkers < minParseWorkers {
+		config.ParseWorkers = minParseWorkers
+	}
+	if config.MaxInsertWorkers < minInsertWorkers {
+		config.MaxInsertWorkers = defaultInsertWorkers
 	}
 	if config.MaxBatchSize < minMaxBatchSize {
 		config.MaxBatchSize = defaultMaxBatchSize
@@ -101,12 +107,13 @@ func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider
 	}
 
 	measures := NewMeasures(metricsRegistry)
-	workers := semaphore.New(config.MaxWorkers)
+	workers := semaphore.New(config.MaxInsertWorkers)
 	queue := make(chan db.Record, config.QueueSize)
 	b := BatchInserter{
 		config:        config,
 		logger:        logger,
 		measures:      measures,
+		numBatchers:   config.ParseWorkers,
 		insertWorkers: workers,
 		inserter:      inserter,
 		insertQueue:   queue,
@@ -117,8 +124,10 @@ func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider
 
 // Start starts the batcher, which pulls from the queue inside of the BatchInserter.
 func (b *BatchInserter) Start() {
-	b.wg.Add(1)
-	go b.batchRecords()
+	for i := 0; i < b.numBatchers; i++ {
+		b.wg.Add(1)
+		go b.batchRecords()
+	}
 }
 
 // Insert adds the event to the queue inside of BatchInserter, preparing for it
@@ -138,6 +147,11 @@ func (b *BatchInserter) Insert(record db.Record) {
 func (b *BatchInserter) Stop() {
 	close(b.insertQueue)
 	b.wg.Wait()
+
+	// Grab all the workers to make sure they are done.
+	for i := 0; i < b.config.MaxInsertWorkers; i++ {
+		b.insertWorkers.Acquire()
+	}
 }
 
 func (b *BatchInserter) batchRecords() {
@@ -180,11 +194,6 @@ func (b *BatchInserter) batchRecords() {
 			}
 		}
 		stop()
-	}
-
-	// Grab all the workers to make sure they are done.
-	for i := 0; i < b.config.MaxWorkers; i++ {
-		b.insertWorkers.Acquire()
 	}
 }
 
