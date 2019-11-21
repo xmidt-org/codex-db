@@ -30,7 +30,7 @@ import (
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 )
 
@@ -40,7 +40,8 @@ func TestNewBatchInserter(t *testing.T) {
 	goodMeasures := NewMeasures(goodRegistry)
 	goodConfig := Config{
 		QueueSize:        1000,
-		MaxWorkers:       5000,
+		ParseWorkers:     50,
+		MaxInsertWorkers: 5000,
 		MaxBatchSize:     100,
 		MaxBatchWaitTime: 5 * time.Hour,
 	}
@@ -81,7 +82,8 @@ func TestNewBatchInserter(t *testing.T) {
 					MaxBatchSize:     defaultMaxBatchSize,
 					MaxBatchWaitTime: minMaxBatchWaitTime,
 					QueueSize:        defaultMinQueueSize,
-					MaxWorkers:       defaultMaxWorkers,
+					ParseWorkers:     minParseWorkers,
+					MaxInsertWorkers: defaultInsertWorkers,
 				},
 				logger: defaultLogger,
 			},
@@ -191,7 +193,8 @@ func TestBatchInserter(t *testing.T) {
 				config: Config{
 					MaxBatchWaitTime: 10 * time.Millisecond,
 					MaxBatchSize:     3,
-					MaxWorkers:       5,
+					ParseWorkers:     1,
+					MaxInsertWorkers: 5,
 				},
 				inserter:      inserter,
 				insertQueue:   queue,
