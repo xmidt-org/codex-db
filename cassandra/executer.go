@@ -81,6 +81,15 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 			Alg:       alg,
 			KID:       kid,
 		})
+		// clear out vars https://github.com/gocql/gocql/issues/1348
+		device = ""
+		eventType = 0
+		birthdate = 0
+		deathdate = 0
+		data = []byte{}
+		nonce = []byte{}
+		alg = ""
+		kid = ""
 	}
 
 	err := iter.Close()
@@ -95,6 +104,8 @@ func (b *dbDecorator) getList(startDate time.Time, endDate time.Time, offset int
 	iter := b.session.Query("SELECT device_id from devices.events WHERE birthdate  >= ? AND birthdate <= ? GROUP BY device_id LIMIT ? OFFSET ?", startDate.UnixNano(), endDate.UnixNano(), limit, offset).Iter()
 	for iter.Scan(&device) {
 		result = append(result, device)
+		// clear out vars https://github.com/gocql/gocql/issues/1348
+		device = ""
 	}
 
 	err := iter.Close()
@@ -116,6 +127,9 @@ func (b *dbDecorator) findBlacklist() ([]blacklist.BlackListedItem, error) {
 			ID:     device,
 			Reason: reason,
 		})
+		// clear out vars https://github.com/gocql/gocql/issues/1348
+		device = ""
+		reason = ""
 	}
 
 	err := iter.Close()
