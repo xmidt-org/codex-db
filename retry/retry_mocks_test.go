@@ -19,8 +19,7 @@ package dbretry
 
 import (
 	"github.com/stretchr/testify/mock"
-	"github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/codex-db/blacklist"
+	db "github.com/xmidt-org/codex-db"
 )
 
 type mockInserter struct {
@@ -30,41 +29,4 @@ type mockInserter struct {
 func (i *mockInserter) InsertRecords(records ...db.Record) error {
 	args := i.Called(records)
 	return args.Error(0)
-}
-
-type mockPruner struct {
-	mock.Mock
-}
-
-func (p *mockPruner) GetRecordsToDelete(shard int, limit int, deathDate int64) ([]db.RecordToDelete, error) {
-	args := p.Called(shard, limit, deathDate)
-	return args.Get(0).([]db.RecordToDelete), args.Error(1)
-}
-
-func (p *mockPruner) DeleteRecord(shard int, deathdate int64, recordID int64) error {
-	args := p.Called(shard, deathdate, recordID)
-	return args.Error(0)
-}
-
-type mockRG struct {
-	mock.Mock
-}
-
-func (rg *mockRG) GetRecords(deviceID string, limit int) ([]db.Record, error) {
-	args := rg.Called(deviceID, limit)
-	return args.Get(0).([]db.Record), args.Error(1)
-}
-
-func (rg *mockRG) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
-	args := rg.Called(deviceID, limit, eventType)
-	return args.Get(0).([]db.Record), args.Error(1)
-}
-
-type mockLG struct {
-	mock.Mock
-}
-
-func (rg *mockLG) GetBlacklist() ([]blacklist.BlackListedItem, error) {
-	args := rg.Called()
-	return args.Get(0).([]blacklist.BlackListedItem), args.Error(1)
 }

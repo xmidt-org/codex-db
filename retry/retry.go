@@ -29,34 +29,43 @@ import (
 	db "github.com/xmidt-org/codex-db"
 )
 
-var (
-	defaultBackoff = backoff.ExponentialBackOff{
-		InitialInterval:     time.Second,
-		RandomizationFactor: 0.1,
-		Multiplier:          5,
-		MaxInterval:         7 * time.Second,
-		MaxElapsedTime:      10 * time.Second,
-		Clock:               backoff.SystemClock,
-	}
-)
-
 type retryConfig struct {
 	backoffConfig backoff.ExponentialBackOff
 	measures      Measures
 }
 
-// Option is the function used to configure the retry objects.
+// Option is the function used to configure the retry object.
 type Option func(r *retryConfig)
 
-// WithBackoff sets the backoff to use when retrying.  By default, this is
-// an exponential backoff.
+// WithBackoff sets the exponential backoff to use when retrying.  If this
+// isn't called, we use the backoff package's default ExponentialBackoff
+// configuration.  If any values are considered invalid, they are replaced with
+// those defaults.
 func WithBackoff(b backoff.ExponentialBackOff) Option {
 	return func(r *retryConfig) {
 		r.backoffConfig = b
+		if r.backoffConfig.InitialInterval < 0 {
+			r.backoffConfig.InitialInterval = backoff.DefaultInitialInterval
+		}
+		if r.backoffConfig.RandomizationFactor < 0 {
+			r.backoffConfig.RandomizationFactor = backoff.DefaultRandomizationFactor
+		}
+		if r.backoffConfig.Multiplier < 1 {
+			r.backoffConfig.Multiplier = backoff.DefaultMultiplier
+		}
+		if r.backoffConfig.MaxInterval < 0 {
+			r.backoffConfig.MaxInterval = backoff.DefaultMaxInterval
+		}
+		if r.backoffConfig.MaxElapsedTime < 0 {
+			r.backoffConfig.MaxElapsedTime = backoff.DefaultMaxElapsedTime
+		}
+		if r.backoffConfig.Clock == nil {
+			r.backoffConfig.Clock = backoff.SystemClock
+		}
 	}
 }
 
-// WithMeasures provides a provider to use for metrics.
+// WithMeasures sets a provider to use for metrics.
 func WithMeasures(p provider.Provider) Option {
 	return func(r *retryConfig) {
 		if p != nil {
@@ -65,8 +74,11 @@ func WithMeasures(p provider.Provider) Option {
 	}
 }
 
-// RetryInsertService is a wrapper for a db.Inserter that attempts to insert
-// a configurable number of times if the inserts fail.
+// RetryInsertService is a wrapper for a db.Inserter.  If inserting fails, the
+// retry service will continue to try until the configurable max elapsed time
+// is reached.  The retries will exponentially backoff in the manner configured.
+// To read more about this, see the backoff package GoDoc:
+// https://godoc.org/gopkg.in/cenkalti/backoff.v3
 type RetryInsertService struct {
 	inserter db.Inserter
 	config   retryConfig
@@ -78,10 +90,8 @@ func (ri RetryInsertService) AddRetryMetric(_ error, _ time.Duration) {
 	ri.config.measures.SQLQueryRetryCount.With(db.TypeLabel, db.InsertType).Add(1.0)
 }
 
-// InsertRecords uses the inserter to insert the records and tries again if
-// inserting fails.  Between each try, it calculates how long to wait and then
-// waits for that period of time before trying again. Only the error from the
-// last failure is returned.
+// InsertRecords uses the inserter to insert the records and uses the
+// ExponentialBackoff to try again if inserting fails.
 func (ri RetryInsertService) InsertRecords(records ...db.Record) error {
 
 	insertFunc := func() error {
@@ -103,7 +113,7 @@ func CreateRetryInsertService(inserter db.Inserter, options ...Option) RetryInse
 	ris := RetryInsertService{
 		inserter: inserter,
 		config: retryConfig{
-			backoffConfig: defaultBackoff,
+			backoffConfig: *backoff.NewExponentialBackOff(),
 		},
 	}
 	for _, o := range options {
