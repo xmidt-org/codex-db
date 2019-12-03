@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Modified retry package to use backoff package for exponential backoffs on retries [#21](https://github.com/xmidt-org/codex-db/pull/21)
 
 ## [v0.3.3]
 - fix read error causing corrupt data
