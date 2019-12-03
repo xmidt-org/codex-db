@@ -6,6 +6,7 @@ require (
 	github.com/InVisionApp/go-health/v2 v2.1.2
 	github.com/InVisionApp/go-logger v1.0.1
 	github.com/bitly/go-hostpool v0.0.0-20171023180738-a3a6125de932 // indirect
+	github.com/cenkalti/backoff/v3 v3.1.1
 	github.com/go-kit/kit v0.9.0
 
 	github.com/goph/emperror v0.17.3-0.20190703203600-60a8d9faa17b
