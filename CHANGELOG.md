@@ -5,7 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v0.4.0]
 - Modified retry package to use backoff package for exponential backoffs on retries [#21](https://github.com/xmidt-org/codex-db/pull/21)
+- Added automated releases using travis [#22](https://github.com/xmidt-org/codex-db/pull/22)
 
 ## [v0.3.3]
 - fix read error causing corrupt data
@@ -37,7 +40,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [v0.1.0]
 - Initial creation, moved from: https://github.com/xmidt-org/codex-deploy
 
-[Unreleased]: https://github.com/xmidt-org/codex-db/compare/v0.3.3..HEAD
+[Unreleased]: https://github.com/xmidt-org/codex-db/compare/v0.4.0..HEAD
+[v0.4.0]: https://github.com/xmidt-org/codex-db/compare/v0.3.3..v0.4.0
 [v0.3.3]: https://github.com/xmidt-org/codex-db/compare/v0.3.2..v0.3.3
 [v0.3.2]: https://github.com/xmidt-org/codex-db/compare/v0.3.1..v0.3.2
 [v0.3.1]: https://github.com/xmidt-org/codex-db/compare/v0.3.0..v0.3.1
