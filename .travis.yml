@@ -41,13 +41,10 @@ jobs:
       name: "Make a Release"
       if: branch != master
       script: skip
-      before_deploy:
-        - make release-artifacts
       deploy:
         on:
           all_branches: true
           tags: true
         provider: releases
         api_key: "$GH_TOKEN"
-        file: ./.ignore/*
         skip_cleanup: true
