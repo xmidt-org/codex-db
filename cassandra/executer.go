@@ -66,11 +66,12 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 		nonce     []byte
 		alg       string
 		kid       string
+		rowid     string
 	)
 
-	iter := b.session.Query(fmt.Sprintf("SELECT device_id, record_type, birthdate, deathdate, data, nonce, alg, kid FROM devices.events %s LIMIT ?", filter), append(where, limit)...).Iter()
+	iter := b.session.Query(fmt.Sprintf("SELECT device_id, record_type, birthdate, deathdate, data, nonce, alg, kid, row_id FROM devices.events %s LIMIT ?", filter), append(where, limit)...).Iter()
 
-	for iter.Scan(&device, &eventType, &birthdate, &deathdate, &data, &nonce, &alg, &kid) {
+	for iter.Scan(&device, &eventType, &birthdate, &deathdate, &data, &nonce, &alg, &kid, &rowid) {
 		records = append(records, db.Record{
 			DeviceID:  device,
 			Type:      db.EventType(eventType),
@@ -80,6 +81,7 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 			Nonce:     nonce,
 			Alg:       alg,
 			KID:       kid,
+			RowID:     rowid,
 		})
 		// clear out vars https://github.com/gocql/gocql/issues/1348
 		device = ""
@@ -90,6 +92,7 @@ func (b *dbDecorator) findRecords(limit int, filter string, where ...interface{}
 		nonce = []byte{}
 		alg = ""
 		kid = ""
+		rowid = ""
 	}
 
 	err := iter.Close()
@@ -142,7 +145,7 @@ func (b *dbDecorator) insert(records []db.Record) (int, error) {
 
 	for _, record := range records {
 		// there can be no spaces for some weird reason. Otherwise the database returns and error.
-		batch.Query("INSERT INTO devices.events (device_id, record_type, birthdate, deathdate, data, nonce, alg, kid) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+		batch.Query("INSERT INTO devices.events (device_id, record_type, birthdate, deathdate, data, nonce, alg, kid, row_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, now());",
 			record.DeviceID,
 			record.Type,
 			record.BirthDate,

@@ -172,6 +172,144 @@ func TestGetRecordsOfType(t *testing.T) {
 	}
 }
 
+func TestGetLatestHash(t *testing.T) {
+	tests := []struct {
+		description  string
+		expectedHash string
+		records      []db.Record
+		hasError     bool
+	}{
+		{
+			description:  "empty list",
+			expectedHash: "",
+			records:      []db.Record{},
+			hasError:     true,
+		},
+		{
+			description:  "one record",
+			expectedHash: "cb9629c8-3256-11ea-91fe-6b6aedd62e7b",
+			records:      []db.Record{{RowID: "cb9629c8-3256-11ea-91fe-6b6aedd62e7b"}},
+			hasError:     false,
+		},
+		{
+			description:  "multiple record",
+			expectedHash: "cb962de2-3256-11ea-91fe-6b6aedd62e7b",
+			records:      []db.Record{{RowID: "cb962ad6-3256-11ea-91fe-6b6aedd62e7b"}, {RowID: "cb9629c8-3256-11ea-91fe-6b6aedd62e7b"}, {RowID: "cb962de2-3256-11ea-91fe-6b6aedd62e7b"}},
+			hasError:     false,
+		},
+		{
+			description:  "multiple record with last empty",
+			expectedHash: "cb962de2-3256-11ea-91fe-6b6aedd62e7b",
+			records:      []db.Record{{RowID: "cb962ad6-3256-11ea-91fe-6b6aedd62e7b"}, {RowID: "cb9629c8-3256-11ea-91fe-6b6aedd62e7b"}, {RowID: "cb962de2-3256-11ea-91fe-6b6aedd62e7b"}, {}},
+			hasError:     false,
+		},
+		{
+			description:  "multiple record with first empty",
+			expectedHash: "cb962de2-3256-11ea-91fe-6b6aedd62e7b",
+			records:      []db.Record{{}, {RowID: "cb962ad6-3256-11ea-91fe-6b6aedd62e7b"}, {RowID: "cb9629c8-3256-11ea-91fe-6b6aedd62e7b"}, {RowID: "cb962de2-3256-11ea-91fe-6b6aedd62e7b"}, {}},
+			hasError:     false,
+		},
+		{
+			description:  "empty record record",
+			expectedHash: "",
+			records:      []db.Record{{}},
+			hasError:     true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.description, func(t *testing.T) {
+			assert := assert.New(t)
+			mockObj := new(mockFinder)
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
+			dbConnection := Connection{
+				measures: m,
+				finder:   mockObj,
+			}
+
+			hash, err := dbConnection.GetLatestHash(tc.records)
+			if tc.hasError {
+				assert.Error(err)
+			} else {
+				assert.NoError(err)
+			}
+			assert.Equal(tc.expectedHash, hash)
+			mockObj.AssertExpectations(t)
+
+		})
+	}
+
+}
+func TestGetRecordsAfter(t *testing.T) {
+	tests := []struct {
+		description           string
+		deviceID              string
+		hash                  string
+		expectedRecords       []db.Record
+		expectedSuccessMetric float64
+		expectedFailureMetric float64
+		expectedErr           error
+		expectedCalls         int
+	}{
+		{
+			description: "Success",
+			deviceID:    "1234",
+			hash:        "123",
+			expectedRecords: []db.Record{
+				{
+					Type:     1,
+					DeviceID: "1234",
+				},
+			},
+			expectedSuccessMetric: 1.0,
+			expectedErr:           nil,
+			expectedCalls:         1,
+		},
+		{
+			description:           "Get Error",
+			deviceID:              "1234",
+			expectedRecords:       []db.Record{},
+			expectedFailureMetric: 1.0,
+			expectedErr:           errors.New("test Get error"),
+			expectedCalls:         1,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.description, func(t *testing.T) {
+			assert := assert.New(t)
+			mockObj := new(mockFinder)
+			p := xmetricstest.NewProvider(nil, Metrics)
+			m := NewMeasures(p)
+			dbConnection := Connection{
+				measures: m,
+				finder:   mockObj,
+			}
+			if tc.expectedCalls > 0 {
+				marshaledRecords, err := json.Marshal(tc.expectedRecords)
+				assert.Nil(err)
+				mockObj.On("findRecords", mock.Anything, mock.Anything, mock.Anything).Return(marshaledRecords, tc.expectedErr).Times(tc.expectedCalls)
+			}
+			p.Assert(t, SQLQuerySuccessCounter)(xmetricstest.Value(0.0))
+			p.Assert(t, SQLQueryFailureCounter)(xmetricstest.Value(0.0))
+			p.Assert(t, SQLReadRecordsCounter)(xmetricstest.Value(0.0))
+
+			records, err := dbConnection.GetRecordsAfter(tc.deviceID, 5, tc.hash)
+			mockObj.AssertExpectations(t)
+			p.Assert(t, SQLQuerySuccessCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedSuccessMetric))
+			p.Assert(t, SQLQueryFailureCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedFailureMetric))
+			p.Assert(t, SQLReadRecordsCounter)(xmetricstest.Value(float64(len(tc.expectedRecords))))
+			if tc.expectedErr == nil || err == nil {
+				assert.Equal(tc.expectedErr, err)
+			} else {
+				assert.Contains(err.Error(), tc.expectedErr.Error())
+			}
+			assert.Equal(tc.expectedRecords, records)
+		})
+	}
+}
+
 func TestDeviceList(t *testing.T) {
 	tests := []struct {
 		description           string

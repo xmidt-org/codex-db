@@ -168,6 +168,42 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	return deviceInfo, nil
 }
 
+// GetLatestHash returns a hash for the latest record added to the database
+func (c *Connection) GetLatestHash(records []db.Record) (string, error) {
+	if len(records) == 0 {
+		return "", errors.New("record slice is empty")
+	} else if len(records) == 1 && records[0].RowID != "" {
+		return records[0].RowID, nil
+	}
+	original := gocql.UUIDFromTime(time.Time{})
+	latest := original
+	for _, elem := range records {
+		uuid, err := gocql.ParseUUID(elem.RowID)
+		if err != nil {
+			continue
+		}
+		if uuid.Time().UnixNano() > latest.Time().UnixNano() {
+			latest = uuid
+		}
+	}
+	if latest == original {
+		return "", errors.New("no hash found")
+	}
+	return latest.String(), nil
+}
+
+// GetRecords returns a list of records for a given device after a hash
+func (c *Connection) GetRecordsAfter(deviceID string, limit int, hash string) ([]db.Record, error) {
+	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id = ? AND row_id > ?", deviceID, hash)
+	if err != nil {
+		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
+		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID, "row_id", hash)
+	}
+	c.measures.SQLReadRecords.Add(float64(len(deviceInfo)))
+	c.measures.SQLQuerySuccessCount.With(db.TypeLabel, db.ReadType).Add(1.0)
+	return deviceInfo, nil
+}
+
 // GetBlacklist returns a list of blacklisted devices.
 func (c *Connection) GetBlacklist() (list []blacklist.BlackListedItem, err error) {
 	list, err = c.findList.findBlacklist()

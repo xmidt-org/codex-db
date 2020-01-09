@@ -278,6 +278,16 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	return deviceInfo, nil
 }
 
+// GetLatestHash returns a hash for the latest record added to the database
+func (c *Connection) GetLatestHash(records []db.Record) (string, error) {
+	panic("not implemented")
+}
+
+// GetRecords returns a list of records for a given device after a hash
+func (c *Connection) GetRecordsAfter(deviceID string, limit int, hash string) ([]db.Record, error) {
+	panic("not implemented")
+}
+
 // GetRecordsToDelete returns a list of record ids and deathdates not past a
 // given date.
 func (c *Connection) GetRecordsToDelete(shard int, limit int, deathDate int64) ([]db.RecordToDelete, error) {

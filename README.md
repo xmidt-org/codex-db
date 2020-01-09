@@ -41,6 +41,7 @@ CREATE TABLE devices.events (device_id  varchar,
     nonce blob,
     alg varchar,
     kid varchar,
+    row_id TIMEUUID,
     PRIMARY KEY (device_id, birthdate, record_type))
     WITH CLUSTERING ORDER BY (birthdate DESC, record_type ASC)
     AND default_time_to_live = 2768400
@@ -48,6 +49,11 @@ CREATE TABLE devices.events (device_id  varchar,
 CREATE INDEX search_by_record_type ON devices.events
     (device_id, record_type, birthdate) 
     WITH CLUSTERING ORDER BY (record_type ASC, birthdate DESC)
+    AND default_time_to_live = 2768400
+    AND transactions = {'enabled': 'false', 'consistency_level':'user_enforced'};
+CREATE INDEX search_by_row_id ON devices.events
+    (device_id, row_id) 
+    WITH CLUSTERING ORDER BY (row_id DESC)
     AND default_time_to_live = 2768400
     AND transactions = {'enabled': 'false', 'consistency_level':'user_enforced'};
 CREATE TABLE devices.blacklist (device_id varchar PRIMARY KEY, reason varchar);
