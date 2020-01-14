@@ -228,7 +228,7 @@ func TestGetLatestHash(t *testing.T) {
 				finder:   mockObj,
 			}
 
-			hash, err := dbConnection.GetLatestHash(tc.records)
+			hash, err := dbConnection.GetStateHash(tc.records)
 			if tc.hasError {
 				assert.Error(err)
 			} else {

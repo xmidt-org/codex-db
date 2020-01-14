@@ -278,13 +278,13 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	return deviceInfo, nil
 }
 
-// GetLatestHash returns a hash for the latest record added to the database
-func (c *Connection) GetLatestHash(records []db.Record) (string, error) {
+// GetStateHash returns a hash for the latest record added to the database
+func (c *Connection) GetStateHash(records []db.Record) (string, error) {
 	panic("not implemented")
 }
 
 // GetRecords returns a list of records for a given device after a hash
-func (c *Connection) GetRecordsAfter(deviceID string, limit int, hash string) ([]db.Record, error) {
+func (c *Connection) GetRecordsAfter(deviceID string, limit int, stateHash string) ([]db.Record, error) {
 	panic("not implemented")
 }
 

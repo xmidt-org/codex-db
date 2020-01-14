@@ -168,8 +168,8 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	return deviceInfo, nil
 }
 
-// GetLatestHash returns a hash for the latest record added to the database
-func (c *Connection) GetLatestHash(records []db.Record) (string, error) {
+// GetStateHash returns a hash for the latest record added to the database
+func (c *Connection) GetStateHash(records []db.Record) (string, error) {
 	if len(records) == 0 {
 		return "", errors.New("record slice is empty")
 	} else if len(records) == 1 && records[0].RowID != "" {
@@ -193,11 +193,11 @@ func (c *Connection) GetLatestHash(records []db.Record) (string, error) {
 }
 
 // GetRecords returns a list of records for a given device after a hash
-func (c *Connection) GetRecordsAfter(deviceID string, limit int, hash string) ([]db.Record, error) {
-	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id = ? AND row_id > ?", deviceID, hash)
+func (c *Connection) GetRecordsAfter(deviceID string, limit int, stateHash string) ([]db.Record, error) {
+	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id = ? AND row_id > ?", deviceID, stateHash)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
-		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID, "row_id", hash)
+		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID, "row_id", stateHash)
 	}
 	c.measures.SQLReadRecords.Add(float64(len(deviceInfo)))
 	c.measures.SQLQuerySuccessCount.With(db.TypeLabel, db.ReadType).Add(1.0)

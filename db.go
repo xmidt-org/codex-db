@@ -78,6 +78,6 @@ type Pruner interface {
 type RecordGetter interface {
 	GetRecords(deviceID string, limit int) ([]Record, error)
 	GetRecordsOfType(deviceID string, limit int, eventType EventType) ([]Record, error)
-	GetLatestHash(records []Record) (string, error)
-	GetRecordsAfter(deviceID string, limit int, hash string) ([]Record, error)
+	GetStateHash(records []Record) (string, error)
+	GetRecordsAfter(deviceID string, limit int, stateHash string) ([]Record, error)
 }
