@@ -249,7 +249,7 @@ func (c *Connection) setupMetrics() {
 }
 
 // GetRecords returns a list of records for a given device.
-func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error) {
+func (c *Connection) GetRecords(deviceID string, limit int, stateHash string) ([]db.Record, error) {
 	var (
 		deviceInfo []db.Record
 	)
@@ -264,7 +264,7 @@ func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error)
 }
 
 // GetRecords returns a list of records for a given device and event type.
-func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
+func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType, stateHash string) ([]db.Record, error) {
 	var (
 		deviceInfo []db.Record
 	)
@@ -280,11 +280,6 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 
 // GetStateHash returns a hash for the latest record added to the database
 func (c *Connection) GetStateHash(records []db.Record) (string, error) {
-	panic("not implemented")
-}
-
-// GetRecords returns a list of records for a given device after a hash
-func (c *Connection) GetRecordsAfter(deviceID string, limit int, stateHash string) ([]db.Record, error) {
 	panic("not implemented")
 }
 

@@ -50,7 +50,7 @@ type Config struct {
 	// Database aka Keyspace for cassandra
 	Database string
 
-	//OpTimeout
+	// OpTimeout
 	OpTimeout time.Duration
 
 	// SSLRootCert used for enabling tls to the cluster. SSLKey, and SSLCert must also be set.
@@ -145,8 +145,14 @@ func validateConfig(config *Config) {
 }
 
 // GetRecords returns a list of records for a given device.
-func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error) {
-	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id=?", deviceID)
+func (c *Connection) GetRecords(deviceID string, limit int, stateHash string) ([]db.Record, error) {
+	filterString := "WHERE device_id=?"
+	items := []interface{}{deviceID}
+	if stateHash != "" {
+		filterString = "WHERE device_id = ? AND row_id > ?"
+		items = []interface{}{deviceID, stateHash}
+	}
+	deviceInfo, err := c.finder.findRecords(limit, filterString, items...)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID)
@@ -157,8 +163,14 @@ func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error)
 }
 
 // GetRecords returns a list of records for a given device and event type.
-func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
-	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id = ? AND record_type = ?", deviceID, eventType)
+func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType, stateHash string) ([]db.Record, error) {
+	filterString := "WHERE device_id = ? AND record_type = ?"
+	items := []interface{}{deviceID, eventType}
+	if stateHash != "" {
+		filterString = "WHERE device_id = ? AND record_type = ? AND row_id > ?"
+		items = []interface{}{deviceID, eventType, stateHash}
+	}
+	deviceInfo, err := c.finder.findRecords(limit, filterString, items)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID)
@@ -190,18 +202,6 @@ func (c *Connection) GetStateHash(records []db.Record) (string, error) {
 		return "", errors.New("no hash found")
 	}
 	return latest.String(), nil
-}
-
-// GetRecords returns a list of records for a given device after a hash
-func (c *Connection) GetRecordsAfter(deviceID string, limit int, stateHash string) ([]db.Record, error) {
-	deviceInfo, err := c.finder.findRecords(limit, "WHERE device_id = ? AND row_id > ?", deviceID, stateHash)
-	if err != nil {
-		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
-		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID, "row_id", stateHash)
-	}
-	c.measures.SQLReadRecords.Add(float64(len(deviceInfo)))
-	c.measures.SQLQuerySuccessCount.With(db.TypeLabel, db.ReadType).Add(1.0)
-	return deviceInfo, nil
 }
 
 // GetBlacklist returns a list of blacklisted devices.

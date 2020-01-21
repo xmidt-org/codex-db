@@ -89,7 +89,7 @@ func TestGetRecords(t *testing.T) {
 			p.Assert(t, SQLQuerySuccessCounter)(xmetricstest.Value(0.0))
 			p.Assert(t, SQLQueryFailureCounter)(xmetricstest.Value(0.0))
 
-			records, err := dbConnection.GetRecords(tc.deviceID, 5)
+			records, err := dbConnection.GetRecords(tc.deviceID, 5, "")
 			mockObj.AssertExpectations(t)
 			p.Assert(t, SQLQuerySuccessCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedSuccessMetric))
 			p.Assert(t, SQLQueryFailureCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedFailureMetric))
@@ -157,7 +157,7 @@ func TestGetRecordsOfType(t *testing.T) {
 			p.Assert(t, SQLQueryFailureCounter)(xmetricstest.Value(0.0))
 			p.Assert(t, SQLReadRecordsCounter)(xmetricstest.Value(0.0))
 
-			records, err := dbConnection.GetRecordsOfType(tc.deviceID, 5, tc.eventType)
+			records, err := dbConnection.GetRecordsOfType(tc.deviceID, 5, tc.eventType, "")
 			mockObj.AssertExpectations(t)
 			p.Assert(t, SQLQuerySuccessCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedSuccessMetric))
 			p.Assert(t, SQLQueryFailureCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedFailureMetric))
@@ -295,7 +295,7 @@ func TestGetRecordsAfter(t *testing.T) {
 			p.Assert(t, SQLQueryFailureCounter)(xmetricstest.Value(0.0))
 			p.Assert(t, SQLReadRecordsCounter)(xmetricstest.Value(0.0))
 
-			records, err := dbConnection.GetRecordsAfter(tc.deviceID, 5, tc.hash)
+			records, err := dbConnection.GetRecords(tc.deviceID, 5, tc.hash)
 			mockObj.AssertExpectations(t)
 			p.Assert(t, SQLQuerySuccessCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedSuccessMetric))
 			p.Assert(t, SQLQueryFailureCounter, db.TypeLabel, db.ReadType)(xmetricstest.Value(tc.expectedFailureMetric))

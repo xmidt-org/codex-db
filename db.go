@@ -76,8 +76,7 @@ type Pruner interface {
 // RecordGetter is something that can get records, including only getting records of a
 // certain type.
 type RecordGetter interface {
-	GetRecords(deviceID string, limit int) ([]Record, error)
-	GetRecordsOfType(deviceID string, limit int, eventType EventType) ([]Record, error)
+	GetRecords(deviceID string, limit int, stateHash string) ([]Record, error)
+	GetRecordsOfType(deviceID string, limit int, eventType EventType, stateHash string) ([]Record, error)
 	GetStateHash(records []Record) (string, error)
-	GetRecordsAfter(deviceID string, limit int, stateHash string) ([]Record, error)
 }
