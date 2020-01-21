@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.5.0]
+- Added cassandra row_id with TIMEUUID for long-polling [#25](https://github.com/xmidt-org/codex-db/pull/25)
+
 ## [v0.4.0]
 - Modified retry package to use backoff package for exponential backoffs on retries [#21](https://github.com/xmidt-org/codex-db/pull/21)
 - Added automated releases using travis [#22](https://github.com/xmidt-org/codex-db/pull/22)
@@ -40,7 +43,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [v0.1.0]
 - Initial creation, moved from: https://github.com/xmidt-org/codex-deploy
 
-[Unreleased]: https://github.com/xmidt-org/codex-db/compare/v0.4.0..HEAD
+[Unreleased]: https://github.com/xmidt-org/codex-db/compare/v0.5.0..HEAD
+[v0.5.0]: https://github.com/xmidt-org/codex-db/compare/v0.4.0..v0.5.0
 [v0.4.0]: https://github.com/xmidt-org/codex-db/compare/v0.3.3..v0.4.0
 [v0.3.3]: https://github.com/xmidt-org/codex-db/compare/v0.3.2..v0.3.3
 [v0.3.2]: https://github.com/xmidt-org/codex-db/compare/v0.3.1..v0.3.2
