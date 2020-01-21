@@ -180,7 +180,7 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	return deviceInfo, nil
 }
 
-// GetStateHash returns a hash for the latest record added to the database
+// GetStateHash returns a hash for the latest record added to the database.
 func (c *Connection) GetStateHash(records []db.Record) (string, error) {
 	if len(records) == 0 {
 		return "", errors.New("record slice is empty")
