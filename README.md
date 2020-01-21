@@ -34,13 +34,13 @@ This repo is a library of packages.  There is no installation.
 ```cassandraql
 CREATE KEYSPACE IF NOT EXISTS devices;
 CREATE TABLE devices.events (device_id  varchar,
-    record_type int,
-    birthdate bigint,
-    deathdate bigint,
-    data blob,
-    nonce blob,
-    alg varchar,
-    kid varchar,
+    record_type INT,
+    birthdate BIGINT,
+    deathdate BIGINT,
+    data BLOB,
+    nonce BLOB,
+    alg VARCHAR,
+    kid VARCHAR,
     row_id TIMEUUID,
     PRIMARY KEY (device_id, birthdate, record_type))
     WITH CLUSTERING ORDER BY (birthdate DESC, record_type ASC)
