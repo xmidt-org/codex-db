@@ -249,7 +249,7 @@ func (c *Connection) setupMetrics() {
 }
 
 // GetRecords returns a list of records for a given device.
-func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error) {
+func (c *Connection) GetRecords(deviceID string, limit int, stateHash string) ([]db.Record, error) {
 	var (
 		deviceInfo []db.Record
 	)
@@ -264,7 +264,7 @@ func (c *Connection) GetRecords(deviceID string, limit int) ([]db.Record, error)
 }
 
 // GetRecords returns a list of records for a given device and event type.
-func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType) ([]db.Record, error) {
+func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.EventType, stateHash string) ([]db.Record, error) {
 	var (
 		deviceInfo []db.Record
 	)
@@ -276,6 +276,11 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 	c.measures.SQLReadRecords.Add(float64(len(deviceInfo)))
 	c.measures.SQLQuerySuccessCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 	return deviceInfo, nil
+}
+
+// GetStateHash returns a hash for the latest record added to the database
+func (c *Connection) GetStateHash(records []db.Record) (string, error) {
+	panic("not implemented")
 }
 
 // GetRecordsToDelete returns a list of record ids and deathdates not past a

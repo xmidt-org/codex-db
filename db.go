@@ -45,6 +45,7 @@ type Record struct {
 	Nonce     []byte    `json:"nonce" bson:"nonce"`
 	Alg       string    `json:"alg" bson:"alg"`
 	KID       string    `json:"kid" bson:"kid" gorm:"Column:kid"`
+	RowID     string    `json:"rowid"`
 }
 
 // RecordToDelete is the information needed to get out of the database in order
@@ -75,6 +76,7 @@ type Pruner interface {
 // RecordGetter is something that can get records, including only getting records of a
 // certain type.
 type RecordGetter interface {
-	GetRecords(deviceID string, limit int) ([]Record, error)
-	GetRecordsOfType(deviceID string, limit int, eventType EventType) ([]Record, error)
+	GetRecords(deviceID string, limit int, stateHash string) ([]Record, error)
+	GetRecordsOfType(deviceID string, limit int, eventType EventType, stateHash string) ([]Record, error)
+	GetStateHash(records []Record) (string, error)
 }
