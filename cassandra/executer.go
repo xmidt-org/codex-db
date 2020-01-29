@@ -178,5 +178,4 @@ func connect(clusterConfig *gocql.ClusterConfig) (*dbDecorator, error) {
 	}
 
 	return &dbDecorator{session: session}, nil
-
 }

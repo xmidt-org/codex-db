@@ -39,8 +39,11 @@ var (
 )
 
 const (
-	defaultOpTimeout = time.Duration(10) * time.Second
-	defaultDatabase  = "devices"
+	defaultOpTimeout             = time.Duration(10) * time.Second
+	defaultDatabase              = "devices"
+	defaultNumRetries            = 0
+	defaultWaitTimeMult          = 1
+	defaultMaxNumberConnsPerHost = 2
 )
 
 type Config struct {
@@ -68,6 +71,15 @@ type Config struct {
 	Username string
 	// Password to authenticate into the cluster. Username must also be provided.
 	Password string
+
+	// NumRetries for connecting to the db
+	NumRetries int
+
+	// WaitTimeMult the amount of time to wait before retrying to connect to the db
+	WaitTimeMult time.Duration
+
+	// MaxConnsPerHost max number of connections per host
+	MaxConnsPerHost int
 }
 
 type Connection struct {
@@ -95,6 +107,8 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	clusterConfig.Consistency = gocql.LocalQuorum
 	clusterConfig.Keyspace = config.Database
 	clusterConfig.Timeout = config.OpTimeout
+	// let retry package handle it
+	clusterConfig.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 1}
 	// setup ssl
 	if config.SSLRootCert != "" && config.SSLCert != "" && config.SSLKey != "" {
 		clusterConfig.SslOpts = &gocql.SslOptions{
@@ -119,6 +133,13 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 
 	conn, err := connectWithMetrics(clusterConfig, dbConn.measures)
 
+	// retry if it fails
+	waitTime := 1 * time.Second
+	for attempt := 0; attempt < config.NumRetries && err != nil; attempt++ {
+		time.Sleep(waitTime)
+		conn, err = connectWithMetrics(clusterConfig, dbConn.measures)
+		waitTime = waitTime * config.WaitTimeMult
+	}
 	if err != nil {
 		return &Connection{}, emperror.WrapWith(err, "Connecting to database failed", "hosts", config.Hosts)
 	}
@@ -142,6 +163,15 @@ func validateConfig(config *Config) {
 
 	if config.Database == "" {
 		config.Database = defaultDatabase
+	}
+	if config.NumRetries < 0 {
+		config.NumRetries = defaultNumRetries
+	}
+	if config.WaitTimeMult < 1 {
+		config.WaitTimeMult = defaultWaitTimeMult
+	}
+	if config.MaxConnsPerHost <= 0 {
+		config.MaxConnsPerHost = defaultMaxNumberConnsPerHost
 	}
 }
 
