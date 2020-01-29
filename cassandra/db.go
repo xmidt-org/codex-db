@@ -118,6 +118,7 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	}
 
 	conn, err := connectWithMetrics(clusterConfig, dbConn.measures)
+
 	if err != nil {
 		return &Connection{}, emperror.WrapWith(err, "Connecting to database failed", "hosts", config.Hosts)
 	}
@@ -170,7 +171,7 @@ func (c *Connection) GetRecordsOfType(deviceID string, limit int, eventType db.E
 		filterString = "WHERE device_id = ? AND record_type = ? AND row_id > ?"
 		items = []interface{}{deviceID, eventType, stateHash}
 	}
-	deviceInfo, err := c.finder.findRecords(limit, filterString, items)
+	deviceInfo, err := c.finder.findRecords(limit, filterString, items...)
 	if err != nil {
 		c.measures.SQLQueryFailureCount.With(db.TypeLabel, db.ReadType).Add(1.0)
 		return []db.Record{}, emperror.WrapWith(err, "Getting records from database failed", "device id", deviceID)

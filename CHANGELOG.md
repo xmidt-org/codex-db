@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.5.1]
+- Fixed get record of status type [#27](https://github.com/xmidt-org/codex-db/pull/27)
+
 ## [v0.5.0]
 - Added cassandra row_id with TIMEUUID for long-polling [#25](https://github.com/xmidt-org/codex-db/pull/25)
 
