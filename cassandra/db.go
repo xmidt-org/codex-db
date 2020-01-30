@@ -220,6 +220,8 @@ func (c *Connection) GetStateHash(records []db.Record) (string, error) {
 	}
 	original := gocql.UUIDFromTime(time.Time{})
 	latest := original
+	originalBirthDate := int64(0)
+	latestBirthDate := originalBirthDate
 	for _, elem := range records {
 		uuid, err := gocql.ParseUUID(elem.RowID)
 		if err != nil {
@@ -228,9 +230,15 @@ func (c *Connection) GetStateHash(records []db.Record) (string, error) {
 		if uuid.Time().UnixNano() > latest.Time().UnixNano() {
 			latest = uuid
 		}
+		if elem.BirthDate > latestBirthDate {
+			latestBirthDate = elem.BirthDate
+		}
 	}
 	if latest == original {
-		return "", errors.New("no hash found")
+		if latestBirthDate == originalBirthDate {
+			return gocql.TimeUUID().String(), errors.New("no hash or birthdate found")
+		}
+		return gocql.UUIDFromTime(time.Unix(0, latestBirthDate)).String(), errors.New("no hash found")
 	}
 	return latest.String(), nil
 }
