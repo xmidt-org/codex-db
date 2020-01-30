@@ -20,11 +20,14 @@ package cassandra
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 	"github.com/xmidt-org/wrp-go/wrp"
+	"github.com/yugabyte/gocql"
 	"testing"
 	"time"
 )
@@ -173,6 +176,7 @@ func TestGetRecordsOfType(t *testing.T) {
 }
 
 func TestGetLatestHash(t *testing.T) {
+	goodUUID := gocql.TimeUUID()
 	tests := []struct {
 		description  string
 		expectedHash string
@@ -210,9 +214,9 @@ func TestGetLatestHash(t *testing.T) {
 			hasError:     false,
 		},
 		{
-			description:  "empty record record",
-			expectedHash: "",
-			records:      []db.Record{{}},
+			description:  "empty record",
+			expectedHash: goodUUID.String(),
+			records:      []db.Record{{BirthDate: goodUUID.Time().UnixNano()}},
 			hasError:     true,
 		},
 	}
@@ -220,6 +224,8 @@ func TestGetLatestHash(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
+			require := require.New(t)
+
 			mockObj := new(mockFinder)
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
@@ -230,12 +236,22 @@ func TestGetLatestHash(t *testing.T) {
 
 			hash, err := dbConnection.GetStateHash(tc.records)
 			if tc.hasError {
+				fmt.Println(err)
 				assert.Error(err)
 			} else {
 				assert.NoError(err)
 			}
-			assert.Equal(tc.expectedHash, hash)
-			mockObj.AssertExpectations(t)
+			if hash != "" {
+				hashedTime, err := gocql.ParseUUID(hash)
+				require.NoError(err)
+				expectedTime, err := gocql.ParseUUID(tc.expectedHash)
+				require.NoError(err)
+
+				assert.Equal(expectedTime.Time().UnixNano(), hashedTime.Time().UnixNano())
+				mockObj.AssertExpectations(t)
+			} else {
+				assert.Equal(tc.expectedHash, hash)
+			}
 
 		})
 	}
