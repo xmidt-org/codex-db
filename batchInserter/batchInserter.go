@@ -56,13 +56,18 @@ func defaultTicker(d time.Duration) (<-chan time.Time, func()) {
 	return ticker.C, ticker.Stop
 }
 
+type TimeTracker interface {
+	TrackTime(time.Duration)
+}
+
 // BatchInserter manages batching events that need to be inserted, ensuring
 // that an event that needs to be inserted isn't waiting for longer than a set
 // period of time and that each batch doesn't pass a specified size.
 type BatchInserter struct {
 	numBatchers   int
-	insertQueue   chan db.Record
+	insertQueue   chan RecordWithTime
 	inserter      db.Inserter
+	timeTracker   TimeTracker
 	insertWorkers semaphore.Interface
 	wg            sync.WaitGroup
 	measures      *Measures
@@ -80,10 +85,16 @@ type Config struct {
 	QueueSize        int
 }
 
+// RecordWithTime provides the db record and the time this event was received by a service
+type RecordWithTime struct {
+	Record    db.Record
+	Beginning time.Time
+}
+
 // NewBatchInserter creates a BatchInserter with the given values, ensuring
 // that the configuration and other values given are valid.  If configuration
 // values aren't valid, a default value is used.
-func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider.Provider, inserter db.Inserter) (*BatchInserter, error) {
+func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider.Provider, inserter db.Inserter, timeTracker TimeTracker) (*BatchInserter, error) {
 	if inserter == nil {
 		return nil, errors.New("no inserter")
 	}
@@ -108,7 +119,7 @@ func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider
 
 	measures := NewMeasures(metricsRegistry)
 	workers := semaphore.New(config.MaxInsertWorkers)
-	queue := make(chan db.Record, config.QueueSize)
+	queue := make(chan RecordWithTime, config.QueueSize)
 	b := BatchInserter{
 		config:        config,
 		logger:        logger,
@@ -118,6 +129,7 @@ func NewBatchInserter(config Config, logger log.Logger, metricsRegistry provider
 		inserter:      inserter,
 		insertQueue:   queue,
 		ticker:        defaultTicker,
+		timeTracker:   timeTracker,
 	}
 	return &b, nil
 }
@@ -132,7 +144,7 @@ func (b *BatchInserter) Start() {
 
 // Insert adds the event to the queue inside of BatchInserter, preparing for it
 // to be inserted.  This can block, if the queue is full.
-func (b *BatchInserter) Insert(record db.Record) {
+func (b *BatchInserter) Insert(record RecordWithTime) {
 	b.insertQueue <- record
 	if b.measures != nil {
 		b.measures.InsertingQueue.Add(1.0)
@@ -161,15 +173,16 @@ func (b *BatchInserter) batchRecords() {
 		stop          func()
 	)
 	defer b.wg.Done()
-	for record := range b.insertQueue {
+	for rwt := range b.insertQueue {
 		if b.measures != nil {
 			b.measures.InsertingQueue.Add(-1.0)
 		}
-		if record.Data == nil || len(record.Data) == 0 {
+		if rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
 			continue
 		}
 		ticker, stop = b.ticker(b.config.MaxBatchWaitTime)
-		records := []db.Record{record}
+		records := []db.Record{rwt.Record}
+		beginTimes := []time.Time{rwt.Beginning}
 		for {
 			select {
 			case <-ticker:
@@ -178,17 +191,18 @@ func (b *BatchInserter) batchRecords() {
 				if b.measures != nil {
 					b.measures.InsertingQueue.Add(-1.0)
 				}
-				if r.Data == nil || len(r.Data) == 0 {
+				if rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
 					continue
 				}
-				records = append(records, r)
+				records = append(records, r.Record)
+				beginTimes = append(beginTimes, r.Beginning)
 				if b.config.MaxBatchSize != 0 && len(records) >= b.config.MaxBatchSize {
 					insertRecords = true
 				}
 			}
 			if insertRecords {
 				b.insertWorkers.Acquire()
-				go b.insertRecords(records)
+				go b.insertRecords(records, beginTimes)
 				insertRecords = false
 				break
 			}
@@ -197,7 +211,7 @@ func (b *BatchInserter) batchRecords() {
 	}
 }
 
-func (b *BatchInserter) insertRecords(records []db.Record) {
+func (b *BatchInserter) insertRecords(records []db.Record, beginTimes []time.Time) {
 	defer b.insertWorkers.Release()
 	err := b.inserter.InsertRecords(records...)
 	if err != nil {
@@ -206,8 +220,18 @@ func (b *BatchInserter) insertRecords(records []db.Record) {
 		}
 		logging.Error(b.logger, emperror.Context(err)...).Log(logging.MessageKey(),
 			"Failed to add records to the database", logging.ErrorKey(), err.Error())
+		b.sendTimes(beginTimes, time.Now())
 		return
 	}
+	b.sendTimes(beginTimes, time.Now())
 	logging.Debug(b.logger).Log(logging.MessageKey(), "Successfully upserted device information", "records", records)
 	logging.Info(b.logger).Log(logging.MessageKey(), "Successfully upserted device information", "records", len(records))
+}
+
+func (b *BatchInserter) sendTimes(beginTimes []time.Time, endTime time.Time) {
+	if b.timeTracker != nil {
+		for _, beginTime := range beginTimes {
+			b.timeTracker.TrackTime(endTime.Sub(beginTime))
+		}
+	}
 }
