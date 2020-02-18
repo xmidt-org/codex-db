@@ -159,21 +159,21 @@ func TestBatchInserter(t *testing.T) {
 			},
 			expectStopCalled: true,
 		},
-		// {
-		// 	description:     "Nil Record",
-		// 	recordsToInsert: []db.Record{{}},
-		// },
-		// {
-		// 	description:     "Insert Records Error",
-		// 	recordsToInsert: records[3:5],
-		// 	waitBtwnRecords: 1 * time.Millisecond,
-		// 	recordsExpected: [][]db.Record{
-		// 		records[3:5],
-		// 	},
-		// 	insertErr:             errors.New("test insert error"),
-		// 	expectedDroppedEvents: 2,
-		// 	expectStopCalled:      true,
-		// },
+		{
+			description:     "Nil Record",
+			recordsToInsert: []db.Record{{}},
+		},
+		{
+			description:     "Insert Records Error",
+			recordsToInsert: records[3:5],
+			waitBtwnRecords: 1 * time.Millisecond,
+			recordsExpected: [][]db.Record{
+				records[3:5],
+			},
+			insertErr:             errors.New("test insert error"),
+			expectedDroppedEvents: 2,
+			expectStopCalled:      true,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {

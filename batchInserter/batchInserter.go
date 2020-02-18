@@ -177,7 +177,7 @@ func (b *BatchInserter) batchRecords() {
 		if b.measures != nil {
 			b.measures.InsertingQueue.Add(-1.0)
 		}
-		if rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
+		if rwt.Beginning.IsZero() || rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
 			continue
 		}
 		ticker, stop = b.ticker(b.config.MaxBatchWaitTime)
@@ -188,11 +188,11 @@ func (b *BatchInserter) batchRecords() {
 			case <-ticker:
 				insertRecords = true
 			case r := <-b.insertQueue:
+				if rwt.Beginning.IsZero() || rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
+					continue
+				}
 				if b.measures != nil {
 					b.measures.InsertingQueue.Add(-1.0)
-				}
-				if rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
-					continue
 				}
 				records = append(records, r.Record)
 				beginTimes = append(beginTimes, r.Beginning)
