@@ -188,7 +188,7 @@ func (b *BatchInserter) batchRecords() {
 			case <-ticker:
 				insertRecords = true
 			case r := <-b.insertQueue:
-				if rwt.Beginning.IsZero() || rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
+				if r.Beginning.IsZero() || r.Record.Data == nil || len(r.Record.Data) == 0 {
 					continue
 				}
 				if b.measures != nil {
