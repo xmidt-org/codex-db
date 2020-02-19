@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [v0.6.0]
+- Added TimeTracker to keep track of how long an event is in memory [#29](https://github.com/xmidt-org/codex-db/pull/29)
+
 ## [v0.5.2]
 - Always provide a state hash cassandra  [#28](https://github.com/xmidt-org/codex-db/pull/28)
 
@@ -50,7 +53,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [v0.1.0]
 - Initial creation, moved from: https://github.com/xmidt-org/codex-deploy
 
-[Unreleased]: https://github.com/xmidt-org/codex-db/compare/v0.5.2..HEAD
+[Unreleased]: https://github.com/xmidt-org/codex-db/compare/v0.6.0..HEAD
+[v0.6.0]: https://github.com/xmidt-org/codex-db/compare/v0.5.2..v0.6.0
 [v0.5.2]: https://github.com/xmidt-org/codex-db/compare/v0.5.1..v0.5.2
 [v0.5.1]: https://github.com/xmidt-org/codex-db/compare/v0.5.0..v0.5.1
 [v0.5.0]: https://github.com/xmidt-org/codex-db/compare/v0.4.0..v0.5.0
