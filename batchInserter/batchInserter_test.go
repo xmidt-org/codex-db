@@ -96,7 +96,7 @@ func TestNewBatchInserter(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
-			bi, err := NewBatchInserter(tc.config, tc.logger, tc.registry, tc.inserter)
+			bi, err := NewBatchInserter(tc.config, tc.logger, tc.registry, tc.inserter, nil)
 			if bi != nil {
 			}
 			if tc.expectedBatchInserter == nil || bi == nil {
@@ -117,6 +117,7 @@ func TestNewBatchInserter(t *testing.T) {
 }
 
 func TestBatchInserter(t *testing.T) {
+	beginTime := time.Now()
 	records := []db.Record{
 		{
 			Type: db.State,
@@ -181,7 +182,7 @@ func TestBatchInserter(t *testing.T) {
 			for _, r := range tc.recordsExpected {
 				inserter.On("InsertRecords", r).Return(tc.insertErr).Once()
 			}
-			queue := make(chan db.Record, 5)
+			queue := make(chan RecordWithTime, 5)
 			p := xmetricstest.NewProvider(nil, Metrics)
 			m := NewMeasures(p)
 			stopCalled := false
@@ -212,7 +213,11 @@ func TestBatchInserter(t *testing.T) {
 				if i > 0 {
 					time.Sleep(tc.waitBtwnRecords)
 				}
-				b.Insert(r)
+				rwt := RecordWithTime{
+					Record:    r,
+					Beginning: beginTime,
+				}
+				b.Insert(rwt)
 			}
 			tickerChan <- time.Now()
 			b.Stop()
