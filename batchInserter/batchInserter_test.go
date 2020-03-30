@@ -29,6 +29,7 @@ import (
 
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
@@ -144,10 +145,12 @@ func TestBatchInserter(t *testing.T) {
 		description           string
 		insertErr             error
 		recordsToInsert       []db.Record
+		badBeginning          bool
 		recordsExpected       [][]db.Record
 		waitBtwnRecords       time.Duration
 		expectedDroppedEvents float64
 		expectStopCalled      bool
+		expectedErr           error
 	}{
 		{
 			description:     "Success",
@@ -162,6 +165,13 @@ func TestBatchInserter(t *testing.T) {
 		{
 			description:     "Nil Record",
 			recordsToInsert: []db.Record{{}},
+			expectedErr:     ErrBadData,
+		},
+		{
+			description:     "Missing Beginning for Record",
+			recordsToInsert: []db.Record{records[0]},
+			badBeginning:    true,
+			expectedErr:     ErrBadBeginning,
 		},
 		{
 			description:     "Insert Records Error",
@@ -179,8 +189,10 @@ func TestBatchInserter(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			inserter := new(mockInserter)
+			tracker := new(mockTracker)
 			for _, r := range tc.recordsExpected {
 				inserter.On("InsertRecords", r).Return(tc.insertErr).Once()
+				tracker.On("TrackTime", mock.Anything).Times(len(r))
 			}
 			queue := make(chan RecordWithTime, 5)
 			p := xmetricstest.NewProvider(nil, Metrics)
@@ -205,6 +217,7 @@ func TestBatchInserter(t *testing.T) {
 				ticker: func(d time.Duration) (<-chan time.Time, func()) {
 					return tickerChan, stop
 				},
+				timeTracker: tracker,
 			}
 			p.Assert(t, DroppedEventsFromDbFailCounter)(xmetricstest.Value(0))
 			b.wg.Add(1)
@@ -214,10 +227,17 @@ func TestBatchInserter(t *testing.T) {
 					time.Sleep(tc.waitBtwnRecords)
 				}
 				rwt := RecordWithTime{
-					Record:    r,
-					Beginning: beginTime,
+					Record: r,
 				}
-				b.Insert(rwt)
+				if !tc.badBeginning {
+					rwt.Beginning = beginTime
+				}
+				err := b.Insert(rwt)
+				if tc.expectedErr == nil || err == nil {
+					assert.Equal(tc.expectedErr, err)
+				} else {
+					assert.Contains(err.Error(), tc.expectedErr.Error())
+				}
 			}
 			tickerChan <- time.Now()
 			b.Stop()

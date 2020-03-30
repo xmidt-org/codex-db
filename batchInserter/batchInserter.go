@@ -47,6 +47,11 @@ var (
 	defaultLogger = log.NewNopLogger()
 )
 
+var (
+	ErrBadBeginning = errors.New("invalid value for the beginning time of the record")
+	ErrBadData      = errors.New("data nil or empty")
+)
+
 // defaultTicker is the production code that produces a ticker.  Note that we don't
 // want to return *time.Ticker, as we want to be able to inject something for testing.
 // We also need to return a closure to stop the ticker, so that we can call ticker.Stop() without
@@ -143,12 +148,20 @@ func (b *BatchInserter) Start() {
 }
 
 // Insert adds the event to the queue inside of BatchInserter, preparing for it
-// to be inserted.  This can block, if the queue is full.
-func (b *BatchInserter) Insert(record RecordWithTime) {
-	b.insertQueue <- record
+// to be inserted.  This can block, if the queue is full.  If the record has
+// certain fields empty, an error is returned.
+func (b *BatchInserter) Insert(rwt RecordWithTime) error {
+	if b.timeTracker != nil && rwt.Beginning.IsZero() {
+		return ErrBadBeginning
+	}
+	if rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
+		return ErrBadData
+	}
+	b.insertQueue <- rwt
 	if b.measures != nil {
 		b.measures.InsertingQueue.Add(1.0)
 	}
+	return nil
 }
 
 // Stop closes the internal queue and waits for the workers to finish
@@ -177,9 +190,6 @@ func (b *BatchInserter) batchRecords() {
 		if b.measures != nil {
 			b.measures.InsertingQueue.Add(-1.0)
 		}
-		if rwt.Beginning.IsZero() || rwt.Record.Data == nil || len(rwt.Record.Data) == 0 {
-			continue
-		}
 		ticker, stop = b.ticker(b.config.MaxBatchWaitTime)
 		records := []db.Record{rwt.Record}
 		beginTimes := []time.Time{rwt.Beginning}
@@ -187,9 +197,11 @@ func (b *BatchInserter) batchRecords() {
 			select {
 			case <-ticker:
 				insertRecords = true
-			case r := <-b.insertQueue:
-				if r.Beginning.IsZero() || r.Record.Data == nil || len(r.Record.Data) == 0 {
-					continue
+			case r, ok := <-b.insertQueue:
+				// if ok is false, the queue is closed.
+				if !ok {
+					insertRecords = true
+					break
 				}
 				if b.measures != nil {
 					b.measures.InsertingQueue.Add(-1.0)
@@ -198,6 +210,7 @@ func (b *BatchInserter) batchRecords() {
 				beginTimes = append(beginTimes, r.Beginning)
 				if b.config.MaxBatchSize != 0 && len(records) >= b.config.MaxBatchSize {
 					insertRecords = true
+					break
 				}
 			}
 			if insertRecords {
@@ -233,5 +246,6 @@ func (b *BatchInserter) sendTimes(beginTimes []time.Time, endTime time.Time) {
 		for _, beginTime := range beginTimes {
 			b.timeTracker.TrackTime(endTime.Sub(beginTime))
 		}
+		logging.Debug(b.logger).Log(logging.MessageKey(), "Successfully tracked time taken to insert records")
 	}
 }

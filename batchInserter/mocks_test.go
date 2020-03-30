@@ -18,8 +18,10 @@
 package batchInserter
 
 import (
+	"time"
+
 	"github.com/stretchr/testify/mock"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 )
 
 type mockInserter struct {
@@ -29,4 +31,12 @@ type mockInserter struct {
 func (c *mockInserter) InsertRecords(records ...db.Record) error {
 	args := c.Called(records)
 	return args.Error(0)
+}
+
+type mockTracker struct {
+	mock.Mock
+}
+
+func (t *mockTracker) TrackTime(d time.Duration) {
+	t.Called(d)
 }
