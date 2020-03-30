@@ -148,7 +148,8 @@ func (b *BatchInserter) Start() {
 }
 
 // Insert adds the event to the queue inside of BatchInserter, preparing for it
-// to be inserted.  This can block, if the queue is full.
+// to be inserted.  This can block, if the queue is full.  If the record has
+// certain fields empty, an error is returned.
 func (b *BatchInserter) Insert(rwt RecordWithTime) error {
 	if b.timeTracker != nil && rwt.Beginning.IsZero() {
 		return ErrBadBeginning
