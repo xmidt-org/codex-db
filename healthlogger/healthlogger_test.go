@@ -20,15 +20,13 @@ package healthlogger
 import (
 	"testing"
 
-	hlog "github.com/InVisionApp/go-logger"
 	"github.com/go-kit/kit/log"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImplementsInterface(t *testing.T) {
 	logger := log.NewNopLogger()
-	var hlogger hlog.Logger
-	hlogger = NewHealthLogger(logger)
+	hlogger := NewHealthLogger(logger)
 	assert := assert.New(t)
 	assert.NotNil(hlogger)
 }
