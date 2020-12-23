@@ -83,7 +83,6 @@ type Connection struct {
 	closer       closer
 	pinger       pinger
 
-	opTimeout   time.Duration
 	health      *health.Health
 	measures    Measures
 	stopThreads []chan struct{}
