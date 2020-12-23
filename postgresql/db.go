@@ -147,22 +147,25 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 		return &Connection{}, emperror.WrapWith(errTableNotExist, "Connecting to database failed", "table name", emptyRecord.TableName())
 	}
 
-	dbConn.finder = conn
-	dbConn.findList = conn
-	dbConn.deviceFinder = conn
-	dbConn.multiInsert = conn
-	dbConn.deleter = conn
-	dbConn.closer = conn
-	dbConn.pinger = conn
-	dbConn.stats = conn
-	dbConn.gennericDB = conn.DB.DB()
 	dbConn.measures = NewMeasures(provider)
-
+	dbConn.setDB(conn)
 	dbConn.setupHealthCheck(config.PingInterval)
 	dbConn.setupMetrics()
 	dbConn.configure(config.MaxIdleConns, config.MaxOpenConns)
 
 	return &dbConn, nil
+}
+
+func (c *Connection) setDB(conn *dbDecorator) {
+	c.finder = conn
+	c.findList = conn
+	c.deviceFinder = conn
+	c.multiInsert = conn
+	c.deleter = conn
+	c.closer = conn
+	c.pinger = conn
+	c.stats = conn
+	c.gennericDB = conn.DB.DB()
 }
 
 func validateConfig(config *Config) {
@@ -208,7 +211,7 @@ func (c *Connection) setupHealthCheck(interval time.Duration) {
 	sqlCheck, err := checkers.NewSQL(&checkers.SQLConfig{
 		Pinger: c.gennericDB,
 	})
-	if err != nil { // nolint:staticcheck // will be fixed by todo
+	if err != nil { //nolint:staticcheck // will be fixed by todo
 		// todo: capture this error somehow
 	}
 
