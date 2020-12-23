@@ -208,7 +208,7 @@ func (c *Connection) setupHealthCheck(interval time.Duration) {
 	sqlCheck, err := checkers.NewSQL(&checkers.SQLConfig{
 		Pinger: c.gennericDB,
 	})
-	if err != nil {
+	if err != nil { // nolint:staticcheck // will be fixed by todo
 		// todo: capture this error somehow
 	}
 
