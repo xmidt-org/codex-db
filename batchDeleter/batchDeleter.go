@@ -30,7 +30,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/logging"
 	"github.com/xmidt-org/webpa-common/semaphore"
 )
@@ -40,7 +40,6 @@ const (
 	defaultMaxWorkers   = 5
 	minMaxBatchSize     = 1
 	defaultMaxBatchSize = 1
-	minQueryWaitTime    = 0
 	minSetSize          = 5
 	defaultSetSize      = 1000
 	minDeleteWaitTime   = 1 * time.Millisecond

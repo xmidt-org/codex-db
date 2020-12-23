@@ -36,10 +36,8 @@ import (
 )
 
 var (
-	errTableNotExist    = errors.New("Table does not exist")
-	errInvaliddeviceID  = errors.New("Invalid device ID")
-	errInvalidEventType = errors.New("Invalid event type")
-	errNoEvents         = errors.New("no records to be inserted")
+	errTableNotExist = errors.New("Table does not exist")
+	errNoEvents      = errors.New("no records to be inserted")
 )
 
 const (
