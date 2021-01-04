@@ -31,13 +31,6 @@ import (
 	"github.com/yugabyte/gocql"
 )
 
-var (
-	errTableNotExist    = errors.New("Table does not exist")
-	errInvaliddeviceID  = errors.New("Invalid device ID")
-	errInvalidEventType = errors.New("Invalid event type")
-	errNoEvents         = errors.New("no records to be inserted")
-)
-
 const (
 	defaultOpTimeout             = time.Duration(10) * time.Second
 	defaultDatabase              = "devices"
@@ -90,7 +83,6 @@ type Connection struct {
 	closer       closer
 	pinger       pinger
 
-	opTimeout   time.Duration
 	health      *health.Health
 	measures    Measures
 	stopThreads []chan struct{}

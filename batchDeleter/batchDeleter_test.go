@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/xmidt-org/capacityset"
+	db "github.com/xmidt-org/codex-db"
 
 	"github.com/stretchr/testify/mock"
 
@@ -32,7 +33,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
 )
 
@@ -103,8 +103,6 @@ func TestNewBatchDeleter(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			bd, err := NewBatchDeleter(tc.config, tc.logger, tc.registry, tc.pruner)
-			if bd != nil {
-			}
 			if tc.expectedBatchDeleter == nil || bd == nil {
 				assert.Equal(tc.expectedBatchDeleter, bd)
 			} else {

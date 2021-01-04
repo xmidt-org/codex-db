@@ -25,18 +25,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
-	"github.com/xmidt-org/wrp-go/wrp"
-)
-
-var (
-	goodEvent = wrp.SimpleEvent{
-		Type:        wrp.SimpleEventMessageType,
-		Source:      "test source",
-		Destination: "testdestination",
-		Metadata:    map[string]string{"test key": "test value"},
-	}
 )
 
 func TestGetRecords(t *testing.T) {

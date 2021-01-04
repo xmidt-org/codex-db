@@ -20,7 +20,7 @@ package postgresql
 import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/provider"
-	"github.com/xmidt-org/codex-db"
+	db "github.com/xmidt-org/codex-db"
 	"github.com/xmidt-org/webpa-common/xmetrics"
 )
 
@@ -39,6 +39,7 @@ const (
 	SQLDeletedRecordsCounter    = "sql_deleted_rows_count"
 )
 
+//nolint: funlen // we just have a lot of metrics
 //Metrics returns the Metrics relevant to this package
 func Metrics() []xmetrics.Metric {
 	return []xmetrics.Metric{

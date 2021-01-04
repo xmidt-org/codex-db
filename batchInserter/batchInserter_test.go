@@ -98,8 +98,6 @@ func TestNewBatchInserter(t *testing.T) {
 		t.Run(tc.description, func(t *testing.T) {
 			assert := assert.New(t)
 			bi, err := NewBatchInserter(tc.config, tc.logger, tc.registry, tc.inserter, nil)
-			if bi != nil {
-			}
 			if tc.expectedBatchInserter == nil || bi == nil {
 				assert.Equal(tc.expectedBatchInserter, bi)
 			} else {
