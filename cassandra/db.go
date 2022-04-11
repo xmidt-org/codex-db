@@ -21,9 +21,9 @@ package cassandra
 
 import (
 	"errors"
+	"github.com/InVisionApp/go-health/v2"
 	"time"
 
-	"github.com/InVisionApp/go-health/v2"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
 	db "github.com/xmidt-org/codex-db"
@@ -101,6 +101,10 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	clusterConfig.Timeout = config.OpTimeout
 	// let retry package handle it
 	clusterConfig.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 1}
+	// create warn logger from health logger
+	if health.Logger != nil {
+		clusterConfig.Logger = &goCqlLogger{Logger: health.Logger}
+	}
 	// setup ssl
 	if config.SSLRootCert != "" && config.SSLCert != "" && config.SSLKey != "" {
 		clusterConfig.SslOpts = &gocql.SslOptions{

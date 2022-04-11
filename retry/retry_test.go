@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics/xmetricstest"
 )
 
 func TestRetryInsertRecords(t *testing.T) {

@@ -21,7 +21,7 @@ import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/provider"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/xmetrics"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics"
 )
 
 const (
@@ -39,8 +39,8 @@ const (
 	SQLDeletedRecordsCounter    = "sql_deleted_rows_count"
 )
 
-//nolint: funlen // we just have a lot of metrics
-//Metrics returns the Metrics relevant to this package
+// nolint: funlen // we just have a lot of metrics
+// Metrics returns the Metrics relevant to this package
 func Metrics() []xmetrics.Metric {
 	return []xmetrics.Metric{
 		{
@@ -109,7 +109,7 @@ func Metrics() []xmetrics.Metric {
 }
 
 type Measures struct {
-	//Retry                xmetrics.Incrementer
+	// Retry                xmetrics.Incrementer
 	PoolOpenConnections  metrics.Gauge
 	PoolInUseConnections metrics.Gauge
 	PoolIdleConnections  metrics.Gauge
@@ -127,7 +127,7 @@ type Measures struct {
 
 func NewMeasures(p provider.Provider) Measures {
 	return Measures{
-		//Retry:                xmetrics.NewIncrementer(p.NewCounter(RetryCounter)),
+		// Retry:                xmetrics.NewIncrementer(p.NewCounter(RetryCounter)),
 		PoolOpenConnections:  p.NewGauge(PoolOpenConnectionsGauge),
 		PoolInUseConnections: p.NewGauge(PoolInUseConnectionsGauge),
 		PoolIdleConnections:  p.NewGauge(PoolIdleConnectionsGauge),
