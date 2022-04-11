@@ -31,8 +31,8 @@ import (
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/goph/emperror"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/logging"
-	"github.com/xmidt-org/webpa-common/semaphore"
+	"github.com/xmidt-org/webpa-common/v2/logging"
+	"github.com/xmidt-org/webpa-common/v2/semaphore"
 )
 
 const (

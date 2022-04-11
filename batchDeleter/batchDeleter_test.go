@@ -28,12 +28,12 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/xmidt-org/webpa-common/semaphore"
+	"github.com/xmidt-org/webpa-common/v2/semaphore"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics/provider"
 	"github.com/stretchr/testify/assert"
-	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics/xmetricstest"
 )
 
 func TestNewBatchDeleter(t *testing.T) {

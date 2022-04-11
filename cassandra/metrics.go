@@ -21,7 +21,7 @@ import (
 	"github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/provider"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/xmetrics"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics"
 )
 
 const (
@@ -42,7 +42,7 @@ const (
 	SQLDeletedRecordsCounter  = "sql_deleted_rows_count"
 )
 
-//Metrics returns the Metrics relevant to this package
+// Metrics returns the Metrics relevant to this package
 func Metrics() []xmetrics.Metric {
 	return []xmetrics.Metric{
 		{

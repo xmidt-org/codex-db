@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics/xmetricstest"
 	"github.com/yugabyte/gocql"
 )
 

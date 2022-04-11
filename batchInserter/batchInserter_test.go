@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/xmidt-org/webpa-common/semaphore"
+	"github.com/xmidt-org/webpa-common/v2/semaphore"
 
 	"github.com/go-kit/kit/log"
 
@@ -32,7 +32,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	db "github.com/xmidt-org/codex-db"
-	"github.com/xmidt-org/webpa-common/xmetrics/xmetricstest"
+	"github.com/xmidt-org/webpa-common/v2/xmetrics/xmetricstest"
 )
 
 func TestNewBatchInserter(t *testing.T) {
