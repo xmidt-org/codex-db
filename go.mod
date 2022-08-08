@@ -15,9 +15,7 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
-	github.com/prometheus/client_golang v1.12.2 // indirect
-	github.com/prometheus/common v0.37.0 // indirect
-	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/prometheus/client_golang v1.13.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/stretchr/testify v1.8.0
@@ -26,7 +24,6 @@ require (
 	github.com/xmidt-org/webpa-common v1.11.9 // indirect
 	github.com/xmidt-org/webpa-common/v2 v2.0.6
 	github.com/yugabyte/gocql v0.0.0-20220204171058-0bd8e6cb12d0
-	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	golang.org/x/sys v0.0.0-20220804214406-8e32c043e418 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 )
