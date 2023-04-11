@@ -3,10 +3,8 @@
 Codex-db provides the database packages needed for the codex project.
 
 [![Build Status](https://github.com/xmidt-org/codex-db/actions/workflows/ci.yml/badge.svg)](https://github.com/xmidt-org/codex-db/actions/workflows/ci.yml)
-[![Dependency Updateer](https://github.com/xmidt-org/codex-db/actions/workflows/updater.yml/badge.svg)](https://github.com/xmidt-org/codex-db/actions/workflows/updater.yml)
 [![codecov.io](http://codecov.io/github/xmidt-org/codex-db/coverage.svg?branch=main)](http://codecov.io/github/xmidt-org/codex-db?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/xmidt-org/codex-db)](https://goreportcard.com/report/github.com/xmidt-org/codex-db)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xmidt-org_codex-db&metric=alert_status)](https://sonarcloud.io/dashboard?id=xmidt-org_codex-db)
 [![Apache V2 License](http://img.shields.io/badge/license-Apache%20V2-blue.svg)](https://github.com/xmidt-org/codex-db/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/release/xmidt-org/codex-db.svg)](CHANGELOG.md)
 [![GoDoc](https://pkg.go.dev/badge/github.com/xmidt-org/codex-db)](https://pkg.go.dev/github.com/xmidt-org/codex-db)
