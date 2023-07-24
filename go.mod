@@ -3,7 +3,7 @@ module github.com/xmidt-org/codex-db
 go 1.19
 
 require (
-	github.com/InVisionApp/go-health/v2 v2.1.3
+	github.com/InVisionApp/go-health/v2 v2.1.4
 	github.com/InVisionApp/go-logger v1.0.1
 	github.com/cenkalti/backoff/v3 v3.2.2
 	github.com/go-kit/kit v0.12.0
