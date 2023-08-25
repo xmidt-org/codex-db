@@ -6,7 +6,7 @@ require (
 	github.com/InVisionApp/go-health/v2 v2.1.4
 	github.com/InVisionApp/go-logger v1.0.1
 	github.com/cenkalti/backoff/v3 v3.2.2
-	github.com/go-kit/kit v0.12.0
+	github.com/go-kit/kit v0.13.0
 	github.com/goph/emperror v0.17.3-0.20190703203600-60a8d9faa17b
 	github.com/jinzhu/gorm v1.9.16
 	github.com/stretchr/testify v1.8.4
