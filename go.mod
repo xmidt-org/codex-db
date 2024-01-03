@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/xmidt-org/capacityset v0.1.1
 	github.com/xmidt-org/webpa-common/v2 v2.0.7
-	github.com/yugabyte/gocql v0.0.0-20220204171058-0bd8e6cb12d0
+	github.com/yugabyte/gocql v1.6.0-yb-1
 )
 
 require (
