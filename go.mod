@@ -9,7 +9,7 @@ require (
 	github.com/go-kit/kit v0.13.0
 	github.com/goph/emperror v0.17.3-0.20190703203600-60a8d9faa17b
 	github.com/jinzhu/gorm v1.9.16
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/xmidt-org/capacityset v0.1.1
 	github.com/xmidt-org/webpa-common/v2 v2.0.7
 	github.com/yugabyte/gocql v1.6.0-yb-1
@@ -46,7 +46,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/xmidt-org/webpa-common v1.11.9 // indirect
 	golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24 // indirect
